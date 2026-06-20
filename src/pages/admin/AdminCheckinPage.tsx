@@ -152,6 +152,8 @@ export default function AdminCheckinPage() {
 
       if (cpn.coupon_token !== token) {
         toast.error("โทเค็นคูปองไม่ตรงกัน! บัตรนี้อาจถูกดัดแปลง");
+        setLoading(false);
+        return;
       }
 
       // 3. Load check-in status
@@ -237,7 +239,7 @@ export default function AdminCheckinPage() {
 
       await supabase
         .from("registrations")
-        .update({ status: "checked_in" })
+        .update({ status: "CHECKED_IN" })
         .eq("id", record.id);
 
       setIsCheckedIn(true);
@@ -258,22 +260,28 @@ export default function AdminCheckinPage() {
       // 1. Create or update payment record
       const { error: payError } = await supabase
         .from("payments")
-        .insert({
+        .upsert({
           registration_id: record.id,
           amount: coupon.final_price,
           payment_method: paymentMethod,
           payment_status: "paid",
           paid_at: new Date().toISOString(),
           admin_note: adminNote
+        }, {
+          onConflict: "registration_id"
         });
 
       if (payError) throw payError;
 
-      // 2. Update coupon status to 'used'
+      // 2. Unlock coupon after deposit approval
       await supabase
-        .from("coupons")
-        .update({ status: "used", used_at: new Date().toISOString() })
+        .update({ status: "approved", used_at: new Date().toISOString() })
         .eq("id", coupon.id);
+
+      await supabase
+        .from("registrations")
+        .update({ status: "DEPOSIT_PAID" })
+        .eq("id", record.id);
 
       setIsPaid(true);
       toast.success("บันทึกการชำระเงินเรียบร้อยแล้ว!");
@@ -284,9 +292,11 @@ export default function AdminCheckinPage() {
           body: {
             to: record.line_user_id,
             type: "payment_confirmed",
+            app_origin: window.location.origin,
             data: {
               registration_code: record.registration_code,
               full_name: record.full_name,
+              coupon_token: coupon.coupon_token,
               amount: coupon.final_price
             }
           }

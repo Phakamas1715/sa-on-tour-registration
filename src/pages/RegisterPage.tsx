@@ -228,7 +228,7 @@ export default function RegisterPage() {
           interest_topic: finalAiUse,
           has_line_oa: hasLineOa,
           wants_coupon: true,
-          status: "new"
+          status: "WAIT_DEPOSIT"
         })
         .select("id, registration_code")
         .single();
@@ -253,6 +253,7 @@ export default function RegisterPage() {
           body: {
             to: lineProfile.userId,
             type: "registration_success",
+            app_origin: window.location.origin,
             data: {
               registration_code: reg.registration_code,
               full_name: fullName,
@@ -271,6 +272,11 @@ export default function RegisterPage() {
         name: fullName,
         qrUrl: qrCodeUrl
       });
+      window.history.replaceState(
+        null,
+        "",
+        `/success?code=${encodeURIComponent(reg.registration_code || "")}&token=${encodeURIComponent(coupon.coupon_token || "")}`,
+      );
       toast.success("จองสิทธิ์และอัปเดตระบบ AI Agent เรียบร้อย!");
     } catch (err: any) {
       console.error(err);
