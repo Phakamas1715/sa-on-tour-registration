@@ -102,9 +102,7 @@ function LandingPage() {
             </div>
             <div className="leading-tight">
               <p className="text-sm font-bold">สะออนทัวร์</p>
-              <p className="text-[10px] text-muted-foreground tracking-widest uppercase">
-                Agent ไทบ้าน ขอนแก่น
-              </p>
+              <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Agent ไทบ้าน ขอนแก่น</p>
             </div>
           </div>
           <a
@@ -131,19 +129,17 @@ function LandingPage() {
               <h1 className="text-4xl sm:text-5xl lg:text-6xl font-extrabold leading-[1.05] tracking-tight">
                 สะออนทัวร์
                 <br />
-                <span className="bg-gold-gradient bg-clip-text text-transparent">
-                  Agent ไทบ้าน
-                </span>
+                <span className="bg-gold-gradient bg-clip-text text-transparent">Agent ไทบ้าน</span>
                 <br />
                 <span className="text-foreground/90">ขอนแก่น</span>
               </h1>
               <p className="mt-5 text-lg sm:text-xl font-semibold text-foreground/85">
-                Upskill <span className="text-line">LINE OA</span> &{" "}
-                <span className="text-tiktok">TikTok</span> ด้วยพลัง AI
+                Upskill <span className="text-line">LINE OA</span> & <span className="text-tiktok">TikTok</span>{" "}
+                ด้วยพลัง AI
               </p>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-xl">
-                เรียนรู้การสร้าง AI Agent เชื่อมต่อ LINE เพื่อช่วยงานประจำ ทำงานสะดวกขึ้น
-                และใช้ AI ทำคอนเทนต์ TikTok ได้จริง
+                เรียนรู้การสร้าง AI Agent เชื่อมต่อ LINE เพื่อช่วยงานประจำ ทำงานสะดวกขึ้น และใช้ AI ทำคอนเทนต์ TikTok
+                ได้จริง
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -276,9 +272,7 @@ function LandingPage() {
       <section className="py-20 sm:py-28">
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <p className="text-gold font-semibold text-sm uppercase tracking-widest">
-              สิ่งที่คุณจะได้เรียนรู้
-            </p>
+            <p className="text-gold font-semibold text-sm uppercase tracking-widest">สิ่งที่คุณจะได้เรียนรู้</p>
             <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold">
               เปลี่ยน LINE OA และ TikTok ของคุณให้
               <span className="bg-gold-gradient bg-clip-text text-transparent"> ทำงานเองได้</span>
@@ -330,9 +324,7 @@ function LandingPage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6">
           <div className="text-center mb-12">
             <p className="text-gold font-semibold text-sm uppercase tracking-widest">วิทยากร</p>
-            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold">
-              พบมืออาชีพตัวจริงในวงการ
-            </h2>
+            <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold">พบมืออาชีพตัวจริงในวงการ</h2>
           </div>
           <div className="grid md:grid-cols-3 gap-5">
             {[
@@ -365,16 +357,14 @@ function LandingPage() {
                       s.accent === "line"
                         ? "bg-line/15 text-line"
                         : s.accent === "tiktok"
-                        ? "bg-tiktok/15 text-tiktok"
-                        : "bg-gold-gradient text-primary-foreground"
+                          ? "bg-tiktok/15 text-tiktok"
+                          : "bg-gold-gradient text-primary-foreground"
                     }`}
                   >
                     {s.name.charAt(0)}
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground uppercase tracking-wider">
-                      {s.role}
-                    </p>
+                    <p className="text-xs text-muted-foreground uppercase tracking-wider">{s.role}</p>
                     <h3 className="text-lg font-bold">{s.name}</h3>
                   </div>
                 </div>
@@ -391,9 +381,7 @@ function LandingPage() {
           <div className="relative p-1 rounded-3xl bg-gold-gradient shadow-glow">
             <div className="rounded-[22px] bg-card p-8 sm:p-12 text-center">
               <p className="text-gold font-semibold text-sm uppercase tracking-widest">ราคาพิเศษ</p>
-              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold">
-                ลงทะเบียนรับสิทธิ์ภายในงาน
-              </h2>
+              <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold">ลงทะเบียนรับสิทธิ์ภายในงาน</h2>
               <div className="mt-8 flex items-end justify-center gap-3">
                 <span className="text-xl text-muted-foreground line-through">5,999</span>
                 <span className="text-6xl sm:text-7xl font-extrabold bg-gold-gradient bg-clip-text text-transparent">
@@ -422,16 +410,15 @@ function LandingPage() {
       <section id="register" className="py-20 sm:py-28 bg-card/30 border-t border-border/60">
         <div className="mx-auto max-w-3xl px-4 sm:px-6">
           <div className="text-center mb-10">
-            <p className="text-gold font-semibold text-sm uppercase tracking-widest">
-              แบบฟอร์มลงทะเบียน
-            </p>
+            <p className="text-gold font-semibold text-sm uppercase tracking-widest">แบบฟอร์มลงทะเบียน</p>
             <h2 className="mt-3 text-3xl sm:text-4xl font-extrabold">ลงทะเบียนเรียน Workshop</h2>
-            <p className="mt-3 text-muted-foreground">
-              กรอกข้อมูลด้านล่าง ทีมงานจะติดต่อกลับเพื่อยืนยันรายละเอียด
-            </p>
+            <p className="mt-3 text-muted-foreground">กรอกข้อมูลด้านล่าง ทีมงานจะติดต่อกลับเพื่อยืนยันรายละเอียด</p>
           </div>
 
-          <form onSubmit={onSubmit} className="space-y-4 p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-card-soft">
+          <form
+            onSubmit={onSubmit}
+            className="space-y-4 p-6 sm:p-8 rounded-3xl bg-card border border-border/60 shadow-card-soft"
+          >
             <Field label="ชื่อ-นามสกุล" name="full_name" required error={errors.full_name} />
             <div className="grid sm:grid-cols-2 gap-4">
               <Field label="เบอร์โทรศัพท์" name="phone" type="tel" required error={errors.phone} />
@@ -455,7 +442,7 @@ function LandingPage() {
                 <option value="">-- เลือก --</option>
                 <option>สร้าง AI Agent เชื่อม LINE OA</option>
                 <option>ใช้ AI ช่วยตอบแชต</option>
-                <option>ใช้ AI ทำคอนเทนต์ TikTok</option>
+                <option>ใช้ AI ทำคอนเทนต์คลิป TikTok</option>
                 <option>อยากเริ่มต้นใช้ AI ในงานประจำ</option>
               </select>
             </div>
@@ -476,14 +463,8 @@ function LandingPage() {
             </div>
 
             <label className="flex items-start gap-3 p-4 rounded-xl bg-background/60 border border-border cursor-pointer">
-              <input
-                type="checkbox"
-                name="consent"
-                className="mt-1 w-5 h-5 accent-[var(--color-gold)]"
-              />
-              <span className="text-sm">
-                ยินยอมให้ทีมงานติดต่อกลับเพื่อยืนยันการลงทะเบียน
-              </span>
+              <input type="checkbox" name="consent" className="mt-1 w-5 h-5 accent-[var(--color-gold)]" />
+              <span className="text-sm">ยินยอมให้ทีมงานติดต่อกลับเพื่อยืนยันการลงทะเบียน</span>
             </label>
             {errors.consent && <p className="text-destructive text-sm">{errors.consent}</p>}
 
