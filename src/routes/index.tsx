@@ -25,8 +25,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       {
-        title:
-          "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น – Upskill LINE OA & TikTok",
+        title: "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น – Upskill LINE OA & TikTok",
       },
       {
         name: "description",
@@ -81,12 +80,128 @@ function useScrollReveal() {
           obs.unobserve(el);
         }
       },
-      { threshold: 0.15 }
+      { threshold: 0.15 },
     );
     obs.observe(el);
     return () => obs.disconnect();
   }, []);
   return ref;
+}
+
+// ─── Parallax Orb ──────────────────────────────────────────────────
+function ParallaxOrb({ speed = 0.2, className = "" }) {
+  const ref = useParallax(speed);
+  return <div ref={ref} className={className} />;
+}
+
+// ─── Reveal Section ────────────────────────────────────────────────
+function RevealSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+  const ref = useScrollReveal();
+  return (
+    <div ref={ref} className="reveal" style={{ transitionDelay: `${delay}ms` }}>
+      {children}
+    </div>
+  );
+}
+
+// ─── Form Field ──────────────────────────────────────────────────
+function Field({
+  label,
+  name,
+  type = "text",
+  required = false,
+  error,
+  ...props
+}: {
+  label: string;
+  name: string;
+  type?: string;
+  required?: boolean;
+  error?: string;
+  [key: string]: any;
+}) {
+  return (
+    <div>
+      <label htmlFor={name} className="block text-sm font-bold mb-2">
+        {label}
+        {required && <span className="text-red-400 ml-1">*</span>}
+      </label>
+      <input
+        id={name}
+        name={name}
+        type={type}
+        className={`w-full px-4 py-3 rounded-xl bg-input border ${
+          error ? "border-red-400" : "border-border"
+        } text-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition`}
+        {...props}
+      />
+      {error && <p className="text-xs text-red-400 mt-1">{error}</p>}
+    </div>
+  );
+}
+
+// ─── Chat Demo ────────────────────────────────────────────────────
+function ChatDemo() {
+  const messages = [
+    { sender: "user", text: "สวัสดีครับ สนใจ workshop ขอนแก่น" },
+    { sender: "bot", text: "สวัสดีครับ! มีที่นั่งเหลือ 5 ที่เท่านั้น 👋" },
+    { sender: "user", text: "ต้องจ่ายเงินตอนนี้เลยไหมครับ" },
+    { sender: "bot", text: "จองไว้ก่อน แล้วค่อยโอนมัดจำภายใน 24 ชม. ได้ครับ" },
+  ];
+
+  return (
+    <div className="glass-card rounded-3xl p-5 w-full max-w-sm mx-auto shadow-2xl border-primary/20">
+      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-border/60">
+        <div className="w-10 h-10 rounded-xl bg-gold-gradient grid place-items-center shadow-glow">
+          <Bot className="w-5 h-5 text-primary-foreground" />
+        </div>
+        <div>
+          <p className="text-sm font-extrabold">Agent ไทบ้าน</p>
+          <p className="text-[10px] text-muted-foreground">ออนไลน์ • ตอบทันที</p>
+        </div>
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+          <span className="text-[10px] text-muted-foreground">พร้อมช่วย</span>
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        {messages.map((msg, i) => (
+          <div
+            key={i}
+            className={`flex ${msg.sender === "user" ? "justify-end" : "justify-start"} chat-in`}
+            style={{ animationDelay: `${i * 200}ms` }}
+          >
+            <div
+              className={`max-w-[85%] px-4 py-2.5 rounded-2xl text-sm ${
+                msg.sender === "user"
+                  ? "bg-gold-gradient text-primary-foreground font-semibold rounded-tr-sm"
+                  : "glass-card text-foreground rounded-tl-sm"
+              }`}
+            >
+              {msg.text}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-4 flex items-center gap-2">
+        <input
+          type="text"
+          placeholder="พิมพ์ข้อความ..."
+          className="flex-1 px-4 py-2.5 rounded-xl bg-input border border-border text-sm focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition"
+          disabled
+        />
+        <button
+          type="button"
+          className="w-11 h-11 rounded-xl bg-gold-gradient grid place-items-center shadow-glow disabled:opacity-50"
+          disabled
+        >
+          <ArrowRight className="w-4 h-4 text-primary-foreground" />
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ─── Landing Page ─────────────────────────────────────────────────
@@ -228,6 +343,25 @@ function LandingPage() {
         /* Chat bubble entrance */
         @keyframes chat-in { from{opacity:0;transform:translateY(12px) scale(0.95)} to{opacity:1;transform:none} }
         .chat-in { animation: chat-in 0.5s ease both; }
+
+        /* Color utilities */
+        .text-gold { color: oklch(0.82 0.15 85); }
+        .bg-gold { background: oklch(0.82 0.15 85); }
+        .bg-gold/10 { background: oklch(0.82 0.15 85 / 0.1); }
+        .bg-gold-gradient { background: linear-gradient(135deg, oklch(0.88 0.14 90), oklch(0.72 0.22 0)); }
+        .shadow-glow { box-shadow: 0 0 30px oklch(0.82 0.15 85 / 0.3); }
+        .border-gold { border-color: oklch(0.82 0.15 85); }
+
+        .text-line { color: #06C755; }
+        .bg-line/10 { background: #06C755 / 0.1; }
+        .bg-line/15 { background: #06C755 / 0.15; }
+
+        .text-tiktok { color: #EE1D52; }
+        .bg-tiktok/10 { background: #EE1D52 / 0.1; }
+        .bg-tiktok/15 { background: #EE1D52 / 0.15; }
+
+        .text-primary-foreground { color: oklch(0.18 0.04 260); }
+        .bg-primary-foreground { background: oklch(0.18 0.04 260); }
       `}</style>
 
       <Toaster richColors position="top-center" />
@@ -242,20 +376,21 @@ function LandingPage() {
               </div>
               <div className="leading-tight">
                 <p className="text-sm font-extrabold tracking-tight">สะออนทัวร์</p>
-                <p className="text-[9px] text-muted-foreground tracking-[0.15em] uppercase">
-                  Agent ไทบ้าน ขอนแก่น
-                </p>
+                <p className="text-[9px] text-muted-foreground tracking-[0.15em] uppercase">Agent ไทบ้าน ขอนแก่น</p>
               </div>
             </div>
             <nav className="hidden sm:flex items-center gap-6 text-xs font-semibold text-muted-foreground">
-              <a href="#details" className="hover:text-gold transition-colors">งาน</a>
-              <a href="#learn" className="hover:text-gold transition-colors">เรียนรู้</a>
-              <a href="#speakers" className="hover:text-gold transition-colors">วิทยากร</a>
+              <a href="#details" className="hover:text-gold transition-colors">
+                งาน
+              </a>
+              <a href="#learn" className="hover:text-gold transition-colors">
+                เรียนรู้
+              </a>
+              <a href="#speakers" className="hover:text-gold transition-colors">
+                วิทยากร
+              </a>
             </nav>
-            <a
-              href="#register"
-              className="btn-gradient px-4 py-2 rounded-full text-xs"
-            >
+            <a href="#register" className="btn-gradient px-4 py-2 rounded-full text-xs">
               ลงทะเบียน →
             </a>
           </div>
@@ -281,7 +416,6 @@ function LandingPage() {
         {/* Content */}
         <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 pt-28 pb-24 w-full">
           <div className="grid lg:grid-cols-2 gap-16 items-center">
-
             {/* Left — text */}
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-8">
@@ -293,23 +427,19 @@ function LandingPage() {
               <h1 className="text-5xl sm:text-6xl lg:text-7xl font-black leading-[1] tracking-tight">
                 <span className="block text-foreground/95">สะออนทัวร์</span>
                 <span className="block shimmer-text mt-1">Agent ไทบ้าน</span>
-                <span className="block text-foreground/80 text-4xl sm:text-5xl lg:text-6xl mt-2">
-                  ขอนแก่น
-                </span>
+                <span className="block text-foreground/80 text-4xl sm:text-5xl lg:text-6xl mt-2">ขอนแก่น</span>
               </h1>
 
               <div className="neon-line w-24 my-6" />
 
               <p className="text-lg sm:text-xl font-semibold">
-                Upskill{" "}
-                <span className="text-line font-extrabold">LINE OA</span>
+                Upskill <span className="text-line font-extrabold">LINE OA</span>
                 {" & "}
-                <span className="text-tiktok font-extrabold">TikTok</span>
-                {" "}ด้วยพลัง AI
+                <span className="text-tiktok font-extrabold">TikTok</span> ด้วยพลัง AI
               </p>
               <p className="mt-3 text-muted-foreground text-base max-w-md leading-relaxed">
-                เรียนรู้สร้าง AI Agent เชื่อมต่อ LINE ช่วยงานประจำ ปิดการขายอัตโนมัติ
-                และทำคอนเทนต์ TikTok ด้วย AI ในวันเดียว
+                เรียนรู้สร้าง AI Agent เชื่อมต่อ LINE ช่วยงานประจำ ปิดการขายอัตโนมัติ และทำคอนเทนต์ TikTok ด้วย AI
+                ในวันเดียว
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -362,12 +492,9 @@ function LandingPage() {
         <div className="absolute inset-0 grid-overlay opacity-30" />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <RevealSection>
-            <p className="text-center text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">
-              ข้อมูลงาน
-            </p>
+            <p className="text-center text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">ข้อมูลงาน</p>
             <h2 className="text-center text-3xl sm:text-4xl font-black mb-12">
-              Smart Business AI Workshop{" "}
-              <span className="shimmer-text">2026</span>
+              Smart Business AI Workshop <span className="shimmer-text">2026</span>
             </h2>
           </RevealSection>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -402,8 +529,7 @@ function LandingPage() {
               สิ่งที่คุณจะได้เรียนรู้
             </p>
             <h2 className="text-center text-3xl sm:text-4xl font-black mb-4">
-              เปลี่ยน LINE OA & TikTok ให้{" "}
-              <span className="shimmer-text">ทำงานเองได้</span>
+              เปลี่ยน LINE OA & TikTok ให้ <span className="shimmer-text">ทำงานเองได้</span>
             </h2>
             <p className="text-center text-muted-foreground text-sm max-w-lg mx-auto mb-14">
               Workshop ลงมือทำจริงในวันเดียว เสร็จแล้วนำไปใช้กับธุรกิจได้ทันที
@@ -454,7 +580,9 @@ function LandingPage() {
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.bg} ${c.color} uppercase tracking-wider`}>
+                        <span
+                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${c.bg} ${c.color} uppercase tracking-wider`}
+                        >
                           {c.tag}
                         </span>
                       </div>
@@ -472,13 +600,14 @@ function LandingPage() {
       {/* ── SPEAKERS ──────────────────────────────────────── */}
       <section id="speakers" className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 grid-overlay opacity-20" />
-        <ParallaxOrb speed={0.15} className="absolute -left-40 bottom-0 w-[500px] h-[500px] bg-[oklch(0.5_0.2_280)]/10 orb orb-2" />
+        <ParallaxOrb
+          speed={0.15}
+          className="absolute -left-40 bottom-0 w-[500px] h-[500px] bg-[oklch(0.5_0.2_280)]/10 orb orb-2"
+        />
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
           <RevealSection>
             <p className="text-center text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">วิทยากร</p>
-            <h2 className="text-center text-3xl sm:text-4xl font-black mb-14">
-              พบมืออาชีพตัวจริงในวงการ
-            </h2>
+            <h2 className="text-center text-3xl sm:text-4xl font-black mb-14">พบมืออาชีพตัวจริงในวงการ</h2>
           </RevealSection>
           <div className="grid md:grid-cols-3 gap-6">
             {[
@@ -520,7 +649,9 @@ function LandingPage() {
                     >
                       {s.letter}
                     </div>
-                    <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background ${s.accent === "line" ? "bg-line" : s.accent === "tiktok" ? "bg-tiktok" : "bg-gold"} ping-gold`} />
+                    <div
+                      className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background ${s.accent === "line" ? "bg-line" : s.accent === "tiktok" ? "bg-tiktok" : "bg-gold"} ping-gold`}
+                    />
                   </div>
                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">{s.role}</p>
                   <h3 className="text-xl font-black mb-3">{s.name}</h3>
@@ -543,20 +674,14 @@ function LandingPage() {
               <div className="h-1 bg-gold-gradient" />
               <div className="p-8 sm:p-12 text-center">
                 <p className="text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">ราคาพิเศษ</p>
-                <h2 className="text-3xl sm:text-4xl font-black mb-8">
-                  ลงทะเบียนรับสิทธิ์ภายในงาน
-                </h2>
+                <h2 className="text-3xl sm:text-4xl font-black mb-8">ลงทะเบียนรับสิทธิ์ภายในงาน</h2>
 
                 {/* Price display */}
                 <div className="relative inline-block mb-6">
                   <div className="absolute inset-0 bg-gold-gradient blur-3xl opacity-20 rounded-full" />
                   <div className="relative flex items-end justify-center gap-3">
-                    <span className="text-xl text-muted-foreground line-through self-start mt-2">
-                      ฿5,999
-                    </span>
-                    <span className="shimmer-text text-7xl sm:text-8xl font-black leading-none">
-                      2,999
-                    </span>
+                    <span className="text-xl text-muted-foreground line-through self-start mt-2">฿5,999</span>
+                    <span className="shimmer-text text-7xl sm:text-8xl font-black leading-none">2,999</span>
                     <span className="text-xl font-bold mb-1 text-muted-foreground">฿</span>
                   </div>
                 </div>
@@ -594,25 +719,21 @@ function LandingPage() {
       {/* ── REGISTRATION FORM ─────────────────────────────── */}
       <section id="register" className="py-24 relative overflow-hidden">
         <div className="absolute inset-0 grid-overlay opacity-40" />
-        <ParallaxOrb speed={0.2} className="absolute right-0 top-0 w-[500px] h-[500px] bg-[oklch(0.72_0.22_0)]/8 orb orb-3" />
+        <ParallaxOrb
+          speed={0.2}
+          className="absolute right-0 top-0 w-[500px] h-[500px] bg-[oklch(0.72_0.22_0)]/8 orb orb-3"
+        />
         <div className="relative mx-auto max-w-2xl px-4 sm:px-6">
           <RevealSection>
-            <p className="text-center text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">
-              แบบฟอร์มลงทะเบียน
-            </p>
-            <h2 className="text-center text-3xl sm:text-4xl font-black mb-3">
-              ลงทะเบียนเรียน Workshop
-            </h2>
+            <p className="text-center text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">แบบฟอร์มลงทะเบียน</p>
+            <h2 className="text-center text-3xl sm:text-4xl font-black mb-3">ลงทะเบียนเรียน Workshop</h2>
             <p className="text-center text-muted-foreground text-sm mb-10">
               กรอกข้อมูลด้านล่าง ทีมงานจะติดต่อกลับเพื่อยืนยันรายละเอียด
             </p>
           </RevealSection>
 
           <RevealSection delay={100}>
-            <form
-              onSubmit={onSubmit}
-              className="glass-card rounded-3xl p-6 sm:p-10 space-y-5"
-            >
+            <form onSubmit={onSubmit} className="glass-card rounded-3xl p-6 sm:p-10 space-y-5">
               <Field label="ชื่อ-นามสกุล" name="full_name" required error={errors.full_name} />
               <div className="grid sm:grid-cols-2 gap-4">
                 <Field label="เบอร์โทรศัพท์" name="phone" type="tel" required error={errors.phone} />
@@ -637,4 +758,72 @@ function LandingPage() {
                 >
                   <option value="">-- เลือก --</option>
                   <option>สร้าง AI Agent เชื่อม LINE OA</option>
-                  <option>ใ
+                  <option>ใช้ AI ทำคอนเทนต์ TikTok</option>
+                  <option>Automation & CRM ด้วย AI</option>
+                  <option>ทุกหัวข้อ</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-bold mb-2">มี LINE OA อยู่แล้วหรือไม่</label>
+                <select
+                  name="has_line_oa"
+                  defaultValue=""
+                  className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground focus:border-primary focus:ring-2 focus:ring-primary/30 outline-none transition"
+                >
+                  <option value="">-- เลือก --</option>
+                  <option>มีแล้ว</option>
+                  <option>ยังไม่มี แต่อยากเริ่มใช้</option>
+                  <option>กำลังศึกษาอยู่</option>
+                </select>
+              </div>
+
+              <div className="flex items-start gap-3 pt-2">
+                <input
+                  type="checkbox"
+                  id="consent"
+                  name="consent"
+                  className="mt-1 w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary/30 accent-gold"
+                />
+                <label htmlFor="consent" className="text-sm text-muted-foreground leading-relaxed">
+                  ยินยอมให้ทีมงานติดต่อกลับเพื่อยืนยันการลงทะเบียนและแจ้งรายละเอียดเพิ่มเติม
+                  <span className="text-red-400 ml-1">*</span>
+                  {errors.consent && <p className="text-xs text-red-400 mt-1">{errors.consent}</p>}
+                </label>
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="btn-gradient w-full flex items-center justify-center gap-2 px-6 py-4 rounded-full text-base disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {submitting ? (
+                  <>
+                    <span className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
+                    กำลังดำเนินการ...
+                  </>
+                ) : (
+                  <>
+                    ลงทะเบียน <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </button>
+            </form>
+          </RevealSection>
+        </div>
+      </section>
+
+      {/* ── FOOTER ────────────────────────────────────────── */}
+      <footer className="py-12 border-t border-border/30">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Sparkles className="w-4 h-4 text-gold" />
+            <p className="text-sm font-extrabold">สะออนทัวร์</p>
+          </div>
+          <p className="text-xs text-muted-foreground">© 2026 สะออนทัวร์ – Workshop Agent ไทบ้าน ขอนแก่น</p>
+          <p className="text-[10px] text-muted-foreground/60 mt-1">สงวนสิทธิ์ | ข้อมูลการติดต่อตามแบบฟอร์ม</p>
+        </div>
+      </footer>
+    </div>
+  );
+}
