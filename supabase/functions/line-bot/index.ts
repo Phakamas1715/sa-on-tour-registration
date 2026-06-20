@@ -13,13 +13,23 @@ serve(async (req) => {
 
   try {
     const LINE_CHANNEL_ACCESS_TOKEN = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
+    const Z_AI_API_KEY = Deno.env.get("Z_AI_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LINE_CHANNEL_ACCESS_TOKEN) {
       throw new Error("LINE_CHANNEL_ACCESS_TOKEN is not configured in Supabase secrets");
     }
-    if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured in Supabase secrets");
+
+    let apiKey = Z_AI_API_KEY;
+    let isZAi = true;
+
+    if (!apiKey) {
+      apiKey = LOVABLE_API_KEY;
+      isZAi = false;
+    }
+
+    if (!apiKey) {
+      throw new Error("Neither Z_AI_API_KEY nor LOVABLE_API_KEY is configured in Supabase secrets");
     }
 
     const bodyText = await req.text();
@@ -42,7 +52,7 @@ serve(async (req) => {
         console.log(`User ${userId} sent: ${userText}`);
 
         // Get AI response
-        const aiResponse = await getAiReply(userText, LOVABLE_API_KEY);
+        const aiResponse = await getAiReply(userText, apiKey, isZAi);
 
         // Send reply message to LINE
         await replyToLine(replyToken, aiResponse, LINE_CHANNEL_ACCESS_TOKEN);
@@ -61,7 +71,7 @@ serve(async (req) => {
   }
 });
 
-async function getAiReply(userMessage: string, lovableApiKey: string): Promise<string> {
+async function getAiReply(userMessage: string, apiKey: string, isZAi: boolean): Promise<string> {
   const systemPrompt = `คุณเป็น AI Agent ผู้ช่วยลูกค้าอัจฉริยะของบริษัท Regent Holiday (บริษัททัวร์ต่างประเทศและจัดศึกษาดูงานคุณภาพสูง)
   หน้าที่ของคุณคือ:
   1. แนะนำแพ็คเกจทัวร์ต่างประเทศ เช่น ญี่ปุ่น จีน เกาหลี ฮ่องกง ยุโรป และอื่นๆ
@@ -69,15 +79,21 @@ async function getAiReply(userMessage: string, lovableApiKey: string): Promise<s
   3. ช่วยแนะนำวิธีการขอใบเสนอราคา และตอบข้อสงสัยของลูกค้าอย่างเป็นมิตร สุภาพ และเป็นมืออาชีพ
   4. ตอบลูกค้าเป็นภาษาไทยสั้นกระชับเข้าใจง่าย มีการใช้ emoji ตกแต่งสวยงามให้น่าอ่าน`;
 
+  const url = isZAi
+    ? "https://api.z.ai/api/paas/v4/chat/completions"
+    : "https://ai.gateway.lovable.dev/v1/chat/completions";
+
+  const model = isZAi ? "glm-4-flash" : "google/gemini-3-flash-preview";
+
   try {
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${lovableApiKey}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage },

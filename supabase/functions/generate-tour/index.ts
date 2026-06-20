@@ -22,8 +22,18 @@ serve(async (req) => {
       travel_date_end,
     } = await req.json();
 
+    const Z_AI_API_KEY = Deno.env.get("Z_AI_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    let apiKey = Z_AI_API_KEY;
+    let isZAi = true;
+
+    if (!apiKey) {
+      apiKey = LOVABLE_API_KEY;
+      isZAi = false;
+    }
+
+    if (!apiKey) throw new Error("Neither Z_AI_API_KEY nor LOVABLE_API_KEY is configured");
 
     const systemPrompt = `คุณเป็นผู้เชี่ยวชาญจัดทัวร์ต่างประเทศ ศึกษาดูงาน ของบริษัท Regent Holiday
 สร้างโปรแกรมทัวร์ศึกษาดูงานต่างประเทศ ภาษาไทย ตอบเป็น JSON format:
@@ -66,14 +76,20 @@ serve(async (req) => {
 - สถานที่ต้องการดูงาน: ${preferred_visits || "ไม่ระบุ"}
 - วันเดินทาง: ${travel_date_start || "ยังไม่ระบุ"} - ${travel_date_end || "ยังไม่ระบุ"}`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const url = isZAi
+      ? "https://api.z.ai/api/paas/v4/chat/completions"
+      : "https://ai.gateway.lovable.dev/v1/chat/completions";
+
+    const model = isZAi ? "glm-4-flash" : "google/gemini-3-flash-preview";
+
+    const response = await fetch(url, {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        Authorization: `Bearer ${apiKey}`,
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: model,
         messages: [
           { role: "system", content: systemPrompt },
           { role: "user", content: userPrompt },
