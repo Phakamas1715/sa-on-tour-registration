@@ -77,14 +77,18 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
+      { title: "Workshop AgentThaibanKK" },
+      { name: "description", content: "This app provides a modern, mobile-first landing page for workshop registration." },
       { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { property: "og:title", content: "Workshop AgentThaibanKK" },
+      { property: "og:description", content: "This app provides a modern, mobile-first landing page for workshop registration." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Workshop AgentThaibanKK" },
+      { name: "twitter:description", content: "This app provides a modern, mobile-first landing page for workshop registration." },
+      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ff3d12d9-323f-4309-8c83-d453ee07a04a" },
+      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/attachments/og-images/ff3d12d9-323f-4309-8c83-d453ee07a04a" },
     ],
     links: [
       {
