@@ -56,6 +56,118 @@ serve(async (req) => {
 
         // Send reply message to LINE
         await replyToLine(replyToken, aiResponse, LINE_CHANNEL_ACCESS_TOKEN);
+      } else if (event.type === "follow") {
+        const replyToken = event.replyToken;
+        console.log(`User followed the bot: ${event.source.userId}`);
+
+        const welcomeMessage = {
+          type: "flex",
+          altText: "ยินดีต้อนรับสู่ สะออนทัวร์ AI Agent 🤖",
+          contents: {
+            type: "bubble",
+            hero: {
+              type: "image",
+              url: "https://bookingworkshop-agent.lovable.app/hero-bg.png",
+              size: "full",
+              aspectRatio: "20:13",
+              aspectMode: "cover"
+            },
+            body: {
+              type: "box",
+              layout: "vertical",
+              spacing: "md",
+              contents: [
+                {
+                  type: "text",
+                  text: "สะออนทัวร์ AI Agent 🤖",
+                  weight: "bold",
+                  size: "xl",
+                  color: "#f59e0b"
+                },
+                {
+                  type: "text",
+                  text: "ยินดีต้อนรับเข้าสู่ระบบจำลองผู้ช่วยอัจฉริยะ!",
+                  weight: "bold",
+                  size: "md",
+                  color: "#ffffff",
+                  wrap: true
+                },
+                {
+                  type: "text",
+                  text: "สัมมนาสุดพิเศษที่จะเปลี่ยน LINE OA & TikTok ให้ทำงานแทนคุณ 24 ชั่วโมง ดำเนินการโดยวิทยากรผู้เชี่ยวชาญระดับประเทศ",
+                  size: "sm",
+                  color: "#9ca3af",
+                  wrap: true
+                },
+                {
+                  type: "box",
+                  layout: "vertical",
+                  spacing: "xs",
+                  margin: "lg",
+                  contents: [
+                    {
+                      type: "box",
+                      layout: "horizontal",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "📅 วันเสาร์ที่ 28 มิ.ย. 2569",
+                          size: "xs",
+                          color: "#d1d5db",
+                          flex: 1
+                        }
+                      ]
+                    },
+                    {
+                      type: "box",
+                      layout: "horizontal",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "📍 KICE Hall 1-2 ขอนแก่น ห้อง M4-8",
+                          size: "xs",
+                          color: "#d1d5db",
+                          flex: 1
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ],
+              backgroundColor: "#111827"
+            },
+            footer: {
+              type: "box",
+              layout: "vertical",
+              spacing: "sm",
+              contents: [
+                {
+                  type: "button",
+                  style: "primary",
+                  color: "#f59e0b",
+                  action: {
+                    type: "uri",
+                    label: "ลงทะเบียนรับสิทธิ์ 2,999.-",
+                    uri: "https://bookingworkshop-agent.lovable.app"
+                  }
+                },
+                {
+                  type: "button",
+                  style: "secondary",
+                  color: "#374151",
+                  action: {
+                    type: "message",
+                    label: "คุยกับบอททดสอบ",
+                    text: "สวัสดีครับ สนใจบอท AI Agent"
+                  }
+                }
+              ],
+              backgroundColor: "#111827"
+            }
+          }
+        };
+
+        await replyToLine(replyToken, welcomeMessage, LINE_CHANNEL_ACCESS_TOKEN);
       }
     }
 
@@ -115,7 +227,7 @@ async function getAiReply(userMessage: string, apiKey: string, isZAi: boolean): 
   }
 }
 
-async function replyToLine(replyToken: string, text: string, token: string) {
+async function replyToLine(replyToken: string, message: any, token: string) {
   const response = await fetch("https://api.line.me/v2/bot/message/reply", {
     method: "POST",
     headers: {
@@ -125,10 +237,12 @@ async function replyToLine(replyToken: string, text: string, token: string) {
     body: JSON.stringify({
       replyToken: replyToken,
       messages: [
-        {
-          type: "text",
-          text: text,
-        },
+        typeof message === "string"
+          ? {
+              type: "text",
+              text: message,
+            }
+          : message,
       ],
     }),
   });
