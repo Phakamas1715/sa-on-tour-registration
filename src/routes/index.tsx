@@ -423,6 +423,14 @@ function LandingPage() {
               <a href="#speakers" className="hover:text-gold transition-colors">
                 วิทยากร
               </a>
+              <a
+                href="https://www.facebook.com/share/1LZAkJtcHT/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-gold transition-colors"
+              >
+                เพจ Facebook
+              </a>
             </nav>
             <a href="#register" className="btn-gradient px-4 py-2 rounded-full text-xs">
               ลงทะเบียน →
@@ -677,6 +685,8 @@ function LandingPage() {
                 tag: "LINE OA / Digital Media / Content",
                 accent: "line" as const,
                 letter: "ป",
+                link: "https://www.facebook.com/share/18gPG4FKzt/?mibextid=wwXIfr",
+                buttonText: "ติดตาม Facebook",
               },
               {
                 name: "โดม เจริญยศ",
@@ -684,6 +694,8 @@ function LandingPage() {
                 tag: "AI / Tech / Digital Strategy",
                 accent: "gold" as const,
                 letter: "โ",
+                link: "https://www.facebook.com/share/18paKcNdeB/?mibextid=wwXIfr",
+                buttonText: "ติดตาม Facebook",
               },
               {
                 name: "หนุ่มนักออม",
@@ -691,34 +703,52 @@ function LandingPage() {
                 tag: "สอน AI สร้างคลิป TikTok • เพจหนุ่มนักออม",
                 accent: "tiktok" as const,
                 letter: "ห",
+                link: "https://www.tiktok.com/@noomnugaom?_r=1&_t=ZS-97NNRxCges4",
+                buttonText: "ติดตาม TikTok",
               },
             ].map((s, i) => (
               <RevealSection key={s.name} delay={i * 150}>
-                <div className="glass-card glass-card-hover rounded-3xl p-8 text-center group relative overflow-hidden">
+                <div className="glass-card glass-card-hover rounded-3xl p-8 text-center group relative overflow-hidden flex flex-col justify-between h-full">
                   <div className="absolute inset-0 bg-gold-gradient opacity-0 group-hover:opacity-5 transition-opacity duration-500" />
-                  {/* Avatar */}
-                  <div className="relative inline-block mb-5">
-                    <div
-                      className={`w-20 h-20 rounded-2xl grid place-items-center text-3xl font-black mx-auto ${
-                        s.accent === "line"
-                          ? "bg-line/15 text-line"
-                          : s.accent === "tiktok"
-                            ? "bg-tiktok/15 text-tiktok"
-                            : "bg-gold-gradient text-primary-foreground shadow-glow"
-                      }`}
-                    >
-                      {s.letter}
+                  <div>
+                    {/* Avatar */}
+                    <div className="relative inline-block mb-5">
+                      <div
+                        className={`w-20 h-20 rounded-2xl grid place-items-center text-3xl font-black mx-auto ${
+                          s.accent === "line"
+                            ? "bg-line/15 text-line"
+                            : s.accent === "tiktok"
+                              ? "bg-tiktok/15 text-tiktok"
+                              : "bg-gold-gradient text-primary-foreground shadow-glow"
+                        }`}
+                      >
+                        {s.letter}
+                      </div>
+                      <div
+                        className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background ${s.accent === "line" ? "bg-line" : s.accent === "tiktok" ? "bg-tiktok" : "bg-gold"} ping-gold`}
+                      />
                     </div>
-                    <div
-                      className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full border-2 border-background ${s.accent === "line" ? "bg-line" : s.accent === "tiktok" ? "bg-tiktok" : "bg-gold"} ping-gold`}
-                    />
+                    <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+                      {s.role}
+                    </p>
+                    <h3 className="text-xl font-black mb-3">{s.name}</h3>
+                    <div className="neon-line w-12 mx-auto mb-3 opacity-50" />
+                    <p className="text-sm text-muted-foreground leading-relaxed">{s.tag}</p>
                   </div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
-                    {s.role}
-                  </p>
-                  <h3 className="text-xl font-black mb-3">{s.name}</h3>
-                  <div className="neon-line w-12 mx-auto mb-3 opacity-50" />
-                  <p className="text-sm text-muted-foreground leading-relaxed">{s.tag}</p>
+                  <a
+                    href={s.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`mt-6 inline-flex items-center justify-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-bold transition-all duration-300 w-full relative z-10 ${
+                      s.accent === "line"
+                        ? "bg-line/10 hover:bg-line/20 text-line border border-line/20"
+                        : s.accent === "tiktok"
+                          ? "bg-tiktok/10 hover:bg-tiktok/20 text-tiktok border border-tiktok/20"
+                          : "bg-gold/10 hover:bg-gold/20 text-gold border border-gold/20"
+                    }`}
+                  >
+                    {s.buttonText}
+                  </a>
                 </div>
               </RevealSection>
             ))}
@@ -1065,9 +1095,19 @@ function LandingPage() {
       {/* ── FOOTER ────────────────────────────────────────── */}
       <footer className="py-12 border-t border-border/30">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="flex items-center justify-center gap-2 mb-3">
             <Sparkles className="w-4 h-4 text-gold" />
             <p className="text-sm font-extrabold">สะออนทัวร์</p>
+          </div>
+          <div className="mb-4">
+            <a
+              href="https://www.facebook.com/share/1LZAkJtcHT/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-xs text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1.5 bg-white/[0.03] hover:bg-white/[0.08] px-4 py-2 rounded-full border border-white/5"
+            >
+              🌐 ติดตามเพจ Facebook สะออนทัวร์
+            </a>
           </div>
           <p className="text-xs text-muted-foreground">
             © 2026 สะออนทัวร์ – Workshop Agent ไทบ้าน ขอนแก่น

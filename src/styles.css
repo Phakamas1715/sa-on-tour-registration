@@ -116,7 +116,14 @@
 
 @layer utilities {
   .bg-hero {
-    background: var(--gradient-hero);
+    background-image:
+      radial-gradient(ellipse at top right, oklch(0.32 0.12 280 / 0.55), transparent 60%),
+      radial-gradient(ellipse at bottom left, oklch(0.32 0.18 250 / 0.5), transparent 55%),
+      linear-gradient(to bottom, oklch(0.16 0.04 260 / 0.85), oklch(0.16 0.04 260 / 0.95)),
+      url("/hero-bg.png");
+    background-size: cover;
+    background-attachment: fixed;
+    background-position: center;
   }
   .bg-gold-gradient {
     background: var(--gradient-gold);
