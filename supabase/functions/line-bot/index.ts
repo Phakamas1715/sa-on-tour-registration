@@ -1,8 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
+  "Access-Control-Allow-Headers":
+    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -70,7 +72,7 @@ serve(async (req) => {
               url: "https://bookingworkshop-agent.lovable.app/hero-bg.png",
               size: "full",
               aspectRatio: "20:13",
-              aspectMode: "cover"
+              aspectMode: "cover",
             },
             body: {
               type: "box",
@@ -82,7 +84,7 @@ serve(async (req) => {
                   text: "สะออนทัวร์ AI Agent 🤖",
                   weight: "bold",
                   size: "xl",
-                  color: "#f59e0b"
+                  color: "#f59e0b",
                 },
                 {
                   type: "text",
@@ -90,14 +92,14 @@ serve(async (req) => {
                   weight: "bold",
                   size: "md",
                   color: "#ffffff",
-                  wrap: true
+                  wrap: true,
                 },
                 {
                   type: "text",
                   text: "สัมมนาสุดพิเศษที่จะเปลี่ยน LINE OA & TikTok ให้ทำงานแทนคุณ 24 ชั่วโมง ดำเนินการโดยวิทยากรผู้เชี่ยวชาญระดับประเทศ",
                   size: "sm",
                   color: "#9ca3af",
-                  wrap: true
+                  wrap: true,
                 },
                 {
                   type: "box",
@@ -114,9 +116,9 @@ serve(async (req) => {
                           text: "📅 วันเสาร์ที่ 28 มิ.ย. 2569",
                           size: "xs",
                           color: "#d1d5db",
-                          flex: 1
-                        }
-                      ]
+                          flex: 1,
+                        },
+                      ],
                     },
                     {
                       type: "box",
@@ -127,14 +129,14 @@ serve(async (req) => {
                           text: "📍 KICE Hall 1-2 ขอนแก่น ห้อง M4-8",
                           size: "xs",
                           color: "#d1d5db",
-                          flex: 1
-                        }
-                      ]
-                    }
-                  ]
-                }
+                          flex: 1,
+                        },
+                      ],
+                    },
+                  ],
+                },
               ],
-              backgroundColor: "#111827"
+              backgroundColor: "#111827",
             },
             footer: {
               type: "box",
@@ -148,8 +150,8 @@ serve(async (req) => {
                   action: {
                     type: "uri",
                     label: "ลงทะเบียนรับสิทธิ์ 2,999.-",
-                    uri: "https://bookingworkshop-agent.lovable.app"
-                  }
+                    uri: "https://bookingworkshop-agent.lovable.app",
+                  },
                 },
                 {
                   type: "button",
@@ -158,13 +160,13 @@ serve(async (req) => {
                   action: {
                     type: "message",
                     label: "คุยกับบอททดสอบ",
-                    text: "สวัสดีครับ สนใจบอท AI Agent"
-                  }
-                }
+                    text: "สวัสดีครับ สนใจบอท AI Agent",
+                  },
+                },
               ],
-              backgroundColor: "#111827"
-            }
-          }
+              backgroundColor: "#111827",
+            },
+          },
         };
 
         await replyToLine(replyToken, welcomeMessage, LINE_CHANNEL_ACCESS_TOKEN);
@@ -220,7 +222,10 @@ async function getAiReply(userMessage: string, apiKey: string, isZAi: boolean): 
     }
 
     const data = await response.json();
-    return data.choices?.[0]?.message?.content || "ยินดีต้อนรับเข้าสู่บริการ Regent Holiday ค่ะ มีอะไรให้ช่วยแชร์ข้อมูลไหมคะ";
+    return (
+      data.choices?.[0]?.message?.content ||
+      "ยินดีต้อนรับเข้าสู่บริการ Regent Holiday ค่ะ มีอะไรให้ช่วยแชร์ข้อมูลไหมคะ"
+    );
   } catch (err) {
     console.error("Failed to query AI model:", err);
     return "ระบบผู้ช่วยกำลังปรับปรุงชั่วคราวค่ะ ขออภัยในความไม่สะดวกด้วยนะคะ";
