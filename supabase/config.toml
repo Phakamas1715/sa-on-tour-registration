@@ -1,1 +1,13 @@
-project_id = "avahcpkndgsiveueqlcp"
+project_id = "yrroootkiayippcsmugd"
+
+[functions.generate-tour]
+verify_jwt = false
+
+[functions.notify-discord]
+verify_jwt = false
+
+[functions.line-bot]
+verify_jwt = false
+
+[functions.send-line-message]
+verify_jwt = false
