@@ -173,18 +173,21 @@ export const approveDeposit = createServerFn({ method: "POST" })
     });
     if (error) throw new Error((error as { message: string }).message);
     const meta = result as { token: string; registration_code: string; full_name: string; line_user_id: string | null };
-    if (meta.line_user_id) {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.functions.invoke("send-line-message", {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    // Fetch full registration so AI Agent has all fields (receipt, payment, etc.)
+    const { data: fullReg } = await supabaseAdmin
+      .from("registrations")
+      .select("*")
+      .eq("id", data.id)
+      .single();
+
+    // Invoke AI Agent — handles ticket QR, receipt, admin notification
+    if (fullReg) {
+      await supabaseAdmin.functions.invoke("payment-agent", {
         body: {
-          to: meta.line_user_id,
-          type: "payment_confirmed",
-          data: {
-            registration_code: meta.registration_code,
-            full_name: meta.full_name,
-            coupon_token: meta.token,
-            amount: 2999,
-          },
+          ...(fullReg as Record<string, unknown>),
+          coupon_token: meta.token,
         },
       });
     }

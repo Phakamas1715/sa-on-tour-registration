@@ -137,7 +137,7 @@ function paymentConfirmedMessage(req: Request, body: MessageRequest) {
   const couponToken = text(data.coupon_token);
   const amount = money(data.amount || 2999);
   const appOrigin = originFrom(req, body);
-  const checkinUrl = `${appOrigin}/admin/checkin?code=${encodeURIComponent(registrationCode)}${
+  const checkinUrl = `${appOrigin}/checkin?code=${encodeURIComponent(registrationCode)}${
     couponToken ? `&token=${encodeURIComponent(couponToken)}` : ""
   }`;
 
