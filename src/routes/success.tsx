@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { CheckCircle2, Home, Sparkles } from "lucide-react";
+import { CheckCircle2, Home, Sparkles, Calendar, MapPin, Gift } from "lucide-react";
 import { z } from "zod";
 
 export const Route = createFileRoute("/success")({
@@ -34,11 +34,31 @@ function SuccessPage() {
             สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น
           </span>
           <br />
-          ทีมงานจะติดต่อกลับเพื่อยืนยันรายละเอียดการเข้าเรียน
+          ในงาน Smart Business Expo 2026
         </p>
 
-        <div className="mt-6 p-4 rounded-xl bg-gold/10 border border-gold/30 text-gold text-sm font-semibold max-w-md mx-auto">
-          🎁 รับ Gift Voucher เรียนฟรี 3,000 บาท ได้ที่จุดลงทะเบียนงาน Smart Business Expo!
+        {/* Event details reminder */}
+        <div className="mt-6 p-4 rounded-xl bg-card border border-border/40 text-left space-y-2">
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar className="w-4 h-4 text-gold shrink-0" />
+            <span className="text-muted-foreground">วันที่:</span>
+            <span className="font-bold">28 มิถุนายน 2569 เวลา 13.30 – 16.30 น.</span>
+          </div>
+          <div className="flex items-center gap-2 text-sm">
+            <MapPin className="w-4 h-4 text-gold shrink-0" />
+            <span className="text-muted-foreground">สถานที่:</span>
+            <span className="font-bold">KICE Hall 1-2 ห้องประชุม M4-8</span>
+          </div>
+        </div>
+
+        <div className="mt-6 p-5 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Gift className="w-5 h-5" />
+            <span className="font-extrabold text-base">รับ Gift Voucher เรียนฟรี 3,000 บาท</span>
+          </div>
+          <p className="text-sm">
+            ที่จุดลงทะเบียนงาน <span className="font-bold">Smart Business Expo</span> ในวันงาน
+          </p>
         </div>
 
         {code && (
