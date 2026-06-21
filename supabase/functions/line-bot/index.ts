@@ -96,7 +96,7 @@ serve(async (req) => {
                 },
                 {
                   type: "text",
-                  text: "สัมมนาสุดพิเศษที่จะเปลี่ยน LINE OA & TikTok ให้ทำงานแทนคุณ 24 ชั่วโมง ดำเนินการโดยวิทยากรผู้เชี่ยวชาญระดับประเทศ",
+                  text: "เวิร์กช็อปสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ลงมือทำจริง ในงาน Smart Business Expo 2026",
                   size: "sm",
                   color: "#9ca3af",
                   wrap: true,
@@ -126,9 +126,37 @@ serve(async (req) => {
                       contents: [
                         {
                           type: "text",
-                          text: "📍 KICE Hall 1-2 ขอนแก่น ห้อง M4-8",
+                          text: "⏰ เวลา 13.30 - 16.30 น.",
                           size: "xs",
                           color: "#d1d5db",
+                          flex: 1,
+                        },
+                      ],
+                    },
+                    {
+                      type: "box",
+                      layout: "horizontal",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "📍 KICE Hall 1-2 ห้องประชุม M4-8 (ในงาน Smart Business Expo 2026)",
+                          size: "xs",
+                          color: "#d1d5db",
+                          wrap: true,
+                          flex: 1,
+                        },
+                      ],
+                    },
+                    {
+                      type: "box",
+                      layout: "horizontal",
+                      contents: [
+                        {
+                          type: "text",
+                          text: "🎁 ลงทะเบียนภายใน 27 มิ.ย. 69 รับ Gift Voucher เรียนฟรี 3,000.- ที่จุดลงทะเบียนงาน",
+                          size: "xs",
+                          color: "#f59e0b",
+                          wrap: true,
                           flex: 1,
                         },
                       ],
@@ -186,10 +214,14 @@ serve(async (req) => {
 });
 
 async function getAiReply(userMessage: string, apiKey: string, isZAi: boolean): Promise<string> {
-  const systemPrompt = `คุณเป็น AI Agent ผู้ช่วยลูกค้าอัจฉริยะของบริษัท Regent Holiday (บริษัททัวร์ต่างประเทศและจัดศึกษาดูงานคุณภาพสูง)
+  const systemPrompt = `คุณเป็น AI Agent ผู้ช่วยลูกค้าอัจฉริยะของบริษัท Regent Holiday
   หน้าที่ของคุณคือ:
   1. แนะนำแพ็คเกจทัวร์ต่างประเทศ เช่น ญี่ปุ่น จีน เกาหลี ฮ่องกง ยุโรป และอื่นๆ
-  2. ให้ข้อมูลผู้จัดสัมมนา "AI Agent & Automation สำหรับธุรกิจ" ราคาพิเศษ 2,999 บาท และปกติ 5,999 บาท
+  2. ให้ข้อมูลสัมมนา "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น" ในงาน Smart Business Expo 2026
+     - วันจัดงาน: เสาร์ที่ 28 มิถุนายน 2569 เวลา 13.30 - 16.30 น.
+     - สถานที่: KICE Hall 1-2 ห้องประชุม M4-8
+     - ราคาพิเศษ: 2,999 บาท (ปกติ 5,999 บาท)
+     - สิทธิพิเศษ: ลงทะเบียนภายใน 27 มิ.ย. 69 รับ Gift Voucher เรียนฟรี 3,000 บาท ที่จุดลงทะเบียนงาน Smart Business Expo
   3. ช่วยแนะนำวิธีการขอใบเสนอราคา และตอบข้อสงสัยของลูกค้าอย่างเป็นมิตร สุภาพ และเป็นมืออาชีพ
   4. ตอบลูกค้าเป็นภาษาไทยสั้นกระชับเข้าใจง่าย มีการใช้ emoji ตกแต่งสวยงามให้น่าอ่าน`;
 

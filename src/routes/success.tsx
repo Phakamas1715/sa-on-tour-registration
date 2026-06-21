@@ -37,6 +37,10 @@ function SuccessPage() {
           ทีมงานจะติดต่อกลับเพื่อยืนยันรายละเอียดการเข้าเรียน
         </p>
 
+        <div className="mt-6 p-4 rounded-xl bg-gold/10 border border-gold/30 text-gold text-sm font-semibold max-w-md mx-auto">
+          🎁 รับ Gift Voucher เรียนฟรี 3,000 บาท ได้ที่จุดลงทะเบียนงาน Smart Business Expo!
+        </div>
+
         {code && (
           <div className="mt-8 p-6 rounded-2xl bg-card border border-primary/40 shadow-glow">
             <p className="text-xs text-muted-foreground uppercase tracking-widest">

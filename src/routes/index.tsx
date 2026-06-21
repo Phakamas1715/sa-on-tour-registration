@@ -47,12 +47,12 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       {
-        title: "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น – Upskill LINE OA & TikTok",
+        title: "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น (ในงาน Smart Business Expo 2026)",
       },
       {
         name: "description",
         content:
-          "ลงทะเบียนเรียน Workshop สร้าง AI Agent เชื่อม LINE OA และทำคอนเทนต์ TikTok ด้วย AI ที่ KICE ขอนแก่น 28 มิถุนายน 2569",
+          "ลงทะเบียนด่วนภายใน 27 มิ.ย. 69 เวิร์กช็อปสร้าง AI Agent เชื่อม LINE OA และทำ TikTok ในงาน Smart Business Expo 2026 ขอนแก่น 28 มิถุนายน 2569",
       },
       {
         property: "og:title",
@@ -60,7 +60,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:description",
-        content: "Upskill LINE OA & TikTok – จ่ายเพียง 2,999 บาท",
+        content: "ลงทะเบียนก่อน 27 มิ.ย. รับ Gift Voucher เรียนฟรี 3,000 บ. ที่งาน Smart Business Expo",
       },
     ],
   }),
@@ -467,7 +467,7 @@ function LandingPage() {
         q.includes("เวลา")
       ) {
         botMsg =
-          "เวิร์กช็อปจัดวันเสาร์ที่ 28 มิถุนายน 2569 เวลา 10:00 – 19:00 น. ณ KICE Hall 1-2 ขอนแก่น (ชั้น 4 ห้อง M4-8) ครับ!";
+          "เวิร์กช็อปจัดวันเสาร์ที่ 28 มิถุนายน 2569 เวลา 13.30 – 16.30 น. ณ KICE Hall 1-2 ห้องประชุม M4-8 (ในงาน Smart Business Expo 2026) ครับ!";
       } else if (
         q.includes("ราคา") ||
         q.includes("เท่าไหร่") ||
@@ -475,7 +475,7 @@ function LandingPage() {
         q.includes("ค่าเรียน")
       ) {
         botMsg =
-          "ราคาพิเศษเพียง 2,999 บาท (จากปกติ 5,999 บาท) ลงทะเบียนแล้วจะได้รับสิทธิ์เรียนฟรีคอร์ส AI มูลค่า 3,000 บาท และเวิร์กช็อปทำจริง 1 วันเต็ม ได้บอทกลับบ้านด้วยครับ!";
+          "ราคาพิเศษเพียง 2,999 บาท (จากปกติ 5,999 บาท) ลงทะเบียนภายใน 27 มิ.ย. 69 เพื่อรับ Gift Voucher เรียนฟรี 3,000 บาท ที่จุดลงทะเบียนงาน Smart Business Expo ครับ!";
       } else if (
         q.includes("เรียน") ||
         q.includes("สอน") ||
@@ -547,7 +547,7 @@ function LandingPage() {
     } else if (currentStep === "general") {
       if (value === "info_date") {
         const botMsg =
-          "เวิร์กช็อปจัดวันเสาร์ที่ 28 มิถุนายน 2569 เวลา 10:00 – 19:00 น. ณ KICE Hall 1-2 ขอนแก่น (ชั้น 4 ห้อง M4-8) ครับ!";
+          "เวิร์กช็อปจัดวันเสาร์ที่ 28 มิถุนายน 2569 เวลา 13.30 – 16.30 น. ณ KICE Hall 1-2 ห้องประชุม M4-8 (ในงาน Smart Business Expo 2026) ครับ!";
         setChatMessages((prev) => [
           ...prev,
           {
@@ -563,7 +563,7 @@ function LandingPage() {
         speak(botMsg);
       } else if (value === "info_price") {
         const botMsg =
-          "ราคาพิเศษเพียง 2,999 บาท (จากปกติ 5,999 บาท) ลงทะเบียนแล้วจะได้รับสิทธิ์เรียนฟรีคอร์ส AI มูลค่า 3,000 บาท และเวิร์กช็อปทำจริง 1 วันเต็ม ได้บอทกลับบ้านด้วยครับ!";
+          "ราคาพิเศษเพียง 2,999 บาท (จากปกติ 5,999 บาท) ลงทะเบียนภายใน 27 มิ.ย. 69 เพื่อรับ Gift Voucher เรียนฟรี 3,000 บาท ที่จุดลงทะเบียนงาน Smart Business Expo ครับ!";
         setChatMessages((prev) => [
           ...prev,
           {
@@ -900,7 +900,7 @@ function LandingPage() {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-8">
                 <span className="w-1.5 h-1.5 rounded-full bg-gold ping-gold" />
                 <span className="text-gold">เปิดรับลงทะเบียน</span>
-                <span className="text-muted-foreground">• รุ่นพิเศษขอนแก่น</span>
+                <span className="text-muted-foreground">• ในงาน Smart Business Expo 2026</span>
               </div>
 
               <h1
@@ -912,7 +912,7 @@ function LandingPage() {
                 <span className="block text-foreground/80 text-4xl sm:text-5xl lg:text-6xl mt-2 flex items-center gap-2">
                   ขอนแก่น
                   <SpeakButton
-                    text="สะออนทัวร์ เวิร์กช็อป เอเจนต์ไทบ้าน ขอนแก่น ยูพีสกิล ไลน์ โอเอ แอนด์ ติ๊กต๊อก ด้วยพลัง เอไอ"
+                    text="สะออนทัวร์ เวิร์กช็อป เอเจนต์ไทบ้าน ขอนแก่น ยูพีสกิล ไลน์ โอเอ แอนด์ ติ๊กต๊อก ด้วยพลัง เอไอ ในงาน สมาร์ท บิสซิเนส เอ็กซ์โป สองพันยี่สิบหก"
                     enabled={ttsEnabled}
                   />
                 </span>
@@ -926,8 +926,7 @@ function LandingPage() {
                 <span className="text-tiktok font-extrabold">TikTok</span> ด้วยพลัง AI
               </p>
               <p className="mt-3 text-muted-foreground text-base max-w-md leading-relaxed">
-                เรียนรู้สร้าง AI Agent เชื่อมต่อ LINE ช่วยงานประจำ ปิดการขายอัตโนมัติ และทำคอนเทนต์
-                TikTok ด้วย AI ในวันเดียว
+                เรียนสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ให้ใช้งานได้จริงในธุรกิจและงานประจำ ลงมือทำจริง
               </p>
 
               <div className="mt-8 flex flex-wrap gap-3">
@@ -1013,9 +1012,9 @@ function LandingPage() {
               ข้อมูลงาน
             </p>
             <h2 className="text-center text-3xl sm:text-4xl font-black mb-12 flex items-center justify-center gap-2 flex-wrap">
-              <span>Smart Business AI Workshop 2026</span>
+              <span>สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น</span>
               <SpeakButton
-                text="ข้อมูลงาน สมาร์ท บิสซิเนส เอไอ เวิร์กช็อป สองพันยี่สิบหก วันที่ยี่สิบแปดมิถุนายน สองพันห้าร้อยหกสิบเก้า เวลาสิบโมงเช้าถึงทุ่มตรง จัดที่ ไคซ์ฮอลล์ หนึ่งถึงสอง ขอนแก่น ชั้นสี่ ห้อง เอ็มสี่ขีดแปด"
+                text="ข้อมูลงาน สะออนทัวร์ เวิร์กช็อป เอเจนต์ไทบ้าน ขอนแก่น วันเสาร์ที่ยี่สิบแปดมิถุนายน สองพันห้าร้อยหกสิบเก้า เวลาบ่ายโมงครึ่งถึงสี่โมงครึ่ง จัดที่ ไคซ์ฮอลล์ หนึ่งถึงสอง ขอนแก่น ห้องประชุม เอ็มสี่ขีดแปด ในงาน สมาร์ท บิสซิเนส เอ็กซ์โป"
                 enabled={ttsEnabled}
               />
             </h2>
@@ -1023,9 +1022,9 @@ function LandingPage() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { icon: Calendar, label: "วันที่", value: "28 มิ.ย. 2569", sub: "วันเสาร์" },
-              { icon: Clock, label: "เวลา", value: "10:00 – 19:00", sub: "น." },
-              { icon: MapPin, label: "สถานที่", value: "KICE Hall 1-2", sub: "ขอนแก่น" },
-              { icon: Wrench, label: "ห้อง", value: "M4-8", sub: "ชั้น 4" },
+              { icon: Clock, label: "เวลา", value: "13:30 – 16:30", sub: "น." },
+              { icon: MapPin, label: "สถานที่", value: "KICE Hall 1-2", sub: "Smart Business Expo" },
+              { icon: Wrench, label: "ห้องประชุม", value: "M4-8", sub: "ภายในงาน" },
             ].map((d, i) => (
               <RevealSection key={d.label} delay={i * 100}>
                 <div className="glass-card glass-card-hover rounded-2xl p-6 text-center">
@@ -1428,7 +1427,7 @@ function LandingPage() {
                 <p className="text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">
                   ราคาพิเศษ
                 </p>
-                <h2 className="text-3xl sm:text-4xl font-black mb-8">ลงทะเบียนรับสิทธิ์ภายในงาน</h2>
+                <h2 className="text-3xl sm:text-4xl font-black mb-8">ลงทะเบียนก่อน 27 มิ.ย. 69 เพื่อรับ Voucher</h2>
 
                 {/* Price display */}
                 <div className="relative inline-block mb-6">
@@ -1449,11 +1448,11 @@ function LandingPage() {
                   {[
                     {
                       icon: CheckCircle2,
-                      text: "เรียนฟรี AI มูลค่า 3,000 บาท",
+                      text: "รับ Gift Voucher เรียนฟรี 3,000 บาท",
                       color: "text-line",
                     },
-                    { icon: Zap, text: "Workshop ลงมือทำจริง 1 วัน", color: "text-gold" },
-                    { icon: Bot, text: "ได้บอทกลับบ้าน", color: "text-primary" },
+                    { icon: Zap, text: "รับที่จุดลงทะเบียนงาน Smart Business Expo", color: "text-gold" },
+                    { icon: Bot, text: "ลงทะเบียนด่วนภายใน 27 มิ.ย. 69", color: "text-primary" },
                   ].map((p) => (
                     <div
                       key={p.text}
@@ -1466,7 +1465,7 @@ function LandingPage() {
                 </div>
 
                 <p className="text-sm text-muted-foreground mb-8">
-                  รับสิทธิ์เฉพาะผู้ลงทะเบียนและโอนมัดจำล่วงหน้าตามลำดับคิวเท่านั้น
+                  สิทธิพิเศษเมื่อจองออนไลน์: ราคาพิเศษเพียง 2,999 บาท (ปกติ 5,999 บาท) ลงทะเบียนภายใน 27 มิ.ย. 69 รับ Gift Voucher เรียนฟรีมูลค่า 3,000 บาท ณ จุดลงทะเบียนงาน Smart Business Expo
                 </p>
 
                 <a
