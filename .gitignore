@@ -23,6 +23,9 @@ dist-ssr
 # Scratch / temp files
 scratch/
 
+# Local tool settings
+.claude/
+
 # Wrangler / Cloudflare
 .wrangler/
 .dev.vars
