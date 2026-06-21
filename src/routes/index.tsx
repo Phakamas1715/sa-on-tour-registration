@@ -930,13 +930,15 @@ function LandingPage() {
               <div className="neon-line w-24 my-6" />
 
               <p className="text-lg sm:text-xl font-semibold">
-                Upskill <span className="text-line font-extrabold">LINE OA</span>
-                {" & "}
-                <span className="text-tiktok font-extrabold">TikTok</span> ด้วยพลัง AI
+                มาอัปสกิลแบบ<span className="text-gold font-extrabold">ลงมือทำจริง</span>
               </p>
               <p className="mt-3 text-muted-foreground text-base max-w-md leading-relaxed">
-                เรียนสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ให้ใช้งานได้จริงในธุรกิจและงานประจำ ลงมือทำจริง
+                เรียนรู้การสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ให้ใช้งานได้จริงในธุรกิจและงานประจำ
               </p>
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                ลงทะเบียนภายใน 27 มิ.ย. 69 รับ Gift Voucher เรียนฟรี 3,000 บาท!
+              </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
