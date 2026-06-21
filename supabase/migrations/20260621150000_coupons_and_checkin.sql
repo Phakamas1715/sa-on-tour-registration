@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
+
 -- Add new registration statuses
 ALTER TYPE public.registration_status ADD VALUE IF NOT EXISTS 'wait_deposit';
 ALTER TYPE public.registration_status ADD VALUE IF NOT EXISTS 'checked_in';
@@ -11,7 +13,7 @@ ALTER TABLE public.registrations
 CREATE TABLE IF NOT EXISTS public.coupons (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   registration_id uuid NOT NULL REFERENCES public.registrations(id) ON DELETE CASCADE,
-  token           text NOT NULL UNIQUE DEFAULT encode(gen_random_bytes(16), 'hex'),
+  token           text NOT NULL UNIQUE DEFAULT encode(extensions.gen_random_bytes(16), 'hex'),
   status          text NOT NULL DEFAULT 'locked'
                     CHECK (status IN ('locked', 'active', 'used')),
   value           integer NOT NULL DEFAULT 3000,
@@ -42,7 +44,7 @@ SET search_path = public
 AS $$
 BEGIN
   INSERT INTO public.coupons (registration_id, token, status, value)
-  VALUES (NEW.id, encode(gen_random_bytes(16), 'hex'), 'locked', 3000);
+  VALUES (NEW.id, encode(extensions.gen_random_bytes(16), 'hex'), 'locked', 3000);
   RETURN NEW;
 END;
 $$;

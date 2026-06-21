@@ -19,12 +19,16 @@ dist-ssr
 # Environment variables
 .env
 .env.*
+!.env.example
 
 # Scratch / temp files
 scratch/
 
 # Local tool settings
 .claude/
+
+# Supabase CLI local state
+supabase/.temp/
 
 # Wrangler / Cloudflare
 .wrangler/

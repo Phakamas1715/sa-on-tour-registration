@@ -45,7 +45,7 @@ const LIFF_ID = "2010458070-beALbiun";
 const TERMINAL_LINES = [
   "$ SA-ON Tour Workshop AI Agent System v2.0.26",
   "> Initializing registration pipeline...",
-  "> Connecting to Supabase avahcpkndgsiveueqlcp... ✓",
+  "> Connecting to Supabase jsqzymwzrcvabrgjwbrr... ✓",
   "> Validating registration data... ✓",
   "> Creating workshop ticket SAON-KK-xxxx...",
   "> Compiling AI Agent config from system prompt...",

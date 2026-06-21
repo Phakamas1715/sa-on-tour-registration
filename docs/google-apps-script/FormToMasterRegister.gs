@@ -174,10 +174,10 @@ function buildSaOnTourRegistrationForm() {
 const CONFIG = {
   // URL ของ Supabase Edge Function (register-external)
   SUPABASE_FUNCTION_URL:
-    "https://avahcpkndgsiveueqlcp.supabase.co/functions/v1/register-external",
+    "https://jsqzymwzrcvabrgjwbrr.supabase.co/functions/v1/register-external",
 
   // API Key ที่ตั้งใน Supabase Secrets ชื่อ EXTERNAL_API_KEY
-  API_KEY: "saon-kk-7a27e6419821ac1f586a1970345926af",
+  API_KEY: PropertiesService.getScriptProperties().getProperty("EXTERNAL_API_KEY"),
 
   // ชื่อคอลัมน์ใน Google Sheet → ตรงกับ field ใน Master Register
   // ชื่อด้านขวาต้องตรงกับหัวคอลัมน์ใน Sheet ทุกตัวอักษร (รวมถึง / และช่องว่าง)
@@ -263,6 +263,10 @@ function onFormSubmit(e) {
  * @returns {{ registration_code: string; duplicate: boolean } | null}
  */
 function postToMasterRegister(payload) {
+  if (!CONFIG.API_KEY) {
+    throw new Error("Missing EXTERNAL_API_KEY in Apps Script Properties");
+  }
+
   var options = {
     method: "POST",
     contentType: "application/json",
