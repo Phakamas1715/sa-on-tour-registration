@@ -83,22 +83,29 @@ function SuccessPage() {
           </div>
 
           {code && (
-            <div className="mt-8 p-6 rounded-2xl bg-white border-2 border-amber-400 shadow-2xl relative">
-              {/* Subtle decoration */}
-              <div className="absolute inset-0 bg-gradient-to-br from-amber-50/50 to-orange-50/50 rounded-2xl" />
-              <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 rounded-t-2xl" />
+            <div className="mt-8 p-7 rounded-2xl bg-white border-2 border-amber-400 shadow-2xl relative">
+              {/* Decorative top bar */}
+              <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400 rounded-t-2xl" />
+
+              {/* Light background pattern */}
+              <div className="absolute inset-0 bg-gradient-to-br from-amber-50/30 to-orange-50/30 rounded-2xl" />
 
               <div className="relative">
                 <p className="text-xs text-amber-600 uppercase tracking-[0.2em] font-bold">รหัสลงทะเบียนของคุณ</p>
-                {/* Code with high contrast - dark text on light background */}
-                <p className="mt-3 text-4xl font-black text-gray-800 tracking-wider">{code}</p>
-                {/* Decorative underline */}
-                <div className="w-20 h-0.5 bg-gradient-to-r from-amber-400 to-orange-400 mx-auto mt-2" />
+
+                {/* CODE - High contrast with dark color */}
+                <p className="mt-3 text-4xl sm:text-5xl font-black text-gray-900 tracking-wider">{code}</p>
+
+                {/* Decorative elements */}
+                <div className="flex items-center justify-center gap-2 mt-2">
+                  <div className="w-12 h-0.5 bg-gradient-to-r from-amber-300 to-transparent" />
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <div className="w-12 h-0.5 bg-gradient-to-l from-amber-300 to-transparent" />
+                </div>
 
                 <div className="mt-3 flex items-center justify-center gap-2">
-                  <Sparkles className="w-3 h-3 text-amber-500" />
-                  <p className="text-xs text-gray-500 font-medium">
-                    กรุณาเก็บรหัสนี้ไว้ <span className="text-amber-600 font-bold">อ้างอิงกับทีมงาน</span>
+                  <p className="text-sm text-gray-700 font-medium">
+                    กรุณาเก็บรหัสนี้ไว้ <span className="text-amber-600 font-extrabold">อ้างอิงกับทีมงาน</span>
                   </p>
                 </div>
               </div>
