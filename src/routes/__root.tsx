@@ -77,24 +77,26 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Workshop AgentThaibanKK" },
+      { title: "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น" },
       {
         name: "description",
-        content: "This app provides a modern, mobile-first landing page for workshop registration.",
+        content:
+          "ลงทะเบียนเวิร์กช็อปสร้าง AI Agent เชื่อม LINE OA และทำคอนเทนต์ TikTok ในงาน Smart Business Expo 2026 ขอนแก่น",
       },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Workshop AgentThaibanKK" },
+      { name: "author", content: "สะออนทัวร์" },
+      { property: "og:title", content: "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น" },
       {
         property: "og:description",
-        content: "This app provides a modern, mobile-first landing page for workshop registration.",
+        content:
+          "เวิร์กช็อปลงมือทำจริงสำหรับผู้ประกอบการและทีมงานที่ต้องการนำ AI Agent ไปใช้กับธุรกิจ",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
-      { name: "twitter:title", content: "Workshop AgentThaibanKK" },
+      { name: "twitter:title", content: "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น" },
       {
         name: "twitter:description",
-        content: "This app provides a modern, mobile-first landing page for workshop registration.",
+        content:
+          "ลงทะเบียนเวิร์กช็อป AI Agent สำหรับ LINE OA และ TikTok ในงาน Smart Business Expo 2026",
       },
       {
         property: "og:image",
@@ -122,7 +124,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="th">
       <head>
         <HeadContent />
       </head>

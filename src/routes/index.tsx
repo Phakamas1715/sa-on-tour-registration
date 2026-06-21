@@ -56,6 +56,19 @@ const TERMINAL_LINES = [
 
 const BG_IMAGES = ["/bg-slide-1.png", "/bg-slide-2.png", "/bg-slide-3.png"];
 
+const PROFESSIONAL_TRUST_ITEMS = [
+  { icon: Shield, title: "ลงทะเบียนผ่านระบบที่ตรวจสอบได้", desc: "ข้อมูลถูกบันทึกเข้าระบบ Supabase พร้อมเลขอ้างอิงการจอง" },
+  { icon: CheckSquare, title: "ทีมงานยืนยันสิทธิ์เป็นขั้นตอน", desc: "ตรวจสอบมัดจำก่อนปลดล็อก QR Code และคูปองทาง LINE" },
+  { icon: Lock, title: "ใช้ข้อมูลตามวัตถุประสงค์", desc: "ข้อมูลส่วนบุคคลใช้เพื่อการลงทะเบียน ติดต่อกลับ และออกใบเสร็จเท่านั้น" },
+];
+
+const REGISTRATION_STEPS = [
+  "กรอกข้อมูลผู้เข้าอบรม",
+  "รับเลขอ้างอิงการจองทางหน้าเว็บและ LINE",
+  "ส่งสลิปมัดจำให้ทีมงานตรวจสอบ",
+  "รับ QR Code และ Gift Voucher หลังอนุมัติ",
+];
+
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
@@ -65,7 +78,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "ลงทะเบียนด่วนภายใน 27 มิ.ย. 69 เวิร์กช็อปสร้าง AI Agent เชื่อม LINE OA และทำ TikTok ในงาน Smart Business Expo 2026 ขอนแก่น 28 มิถุนายน 2569",
+          "ลงทะเบียนเวิร์กช็อปสร้าง AI Agent เชื่อม LINE OA และทำคอนเทนต์ TikTok สำหรับผู้ประกอบการ ภายในงาน Smart Business Expo 2026 ขอนแก่น 28 มิถุนายน 2569",
       },
       {
         property: "og:title",
@@ -73,7 +86,7 @@ export const Route = createFileRoute("/")({
       },
       {
         property: "og:description",
-        content: "ลงทะเบียนก่อน 27 มิ.ย. รับ Gift Voucher เรียนฟรี 3,000 บ. ที่งาน Smart Business Expo",
+        content: "เวิร์กช็อปลงมือทำจริง พร้อมขั้นตอนยืนยันสิทธิ์และรับ QR Code ทาง LINE หลังตรวจสอบมัดจำ",
       },
     ],
   }),
@@ -966,8 +979,8 @@ function LandingPage() {
             <div>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-6">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 ping-gold" />
-                <span className="text-red-400">ด่วน! รับจำนวนจำกัด</span>
-                <span className="text-muted-foreground">• ภายในงาน Smart Business Expo 2026</span>
+                <span className="text-red-400">เปิดรับสมัครอย่างเป็นทางการ</span>
+                <span className="text-muted-foreground">• Smart Business Expo 2026</span>
               </div>
 
               {/* Smart Business Expo Logo */}
@@ -1002,6 +1015,24 @@ function LandingPage() {
               <p className="mt-3 text-muted-foreground text-base max-w-md leading-relaxed">
                 เรียนรู้การสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ให้ใช้งานได้จริงในธุรกิจและงานประจำ
               </p>
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-xl">
+                {[
+                  { label: "วันอบรม", value: "28 มิ.ย. 2569" },
+                  { label: "เวลา", value: "13:30-16:30" },
+                  { label: "สถานที่", value: "KICE M4-8" },
+                  { label: "รูปแบบ", value: "ลงมือทำจริง" },
+                ].map((item) => (
+                  <div
+                    key={item.label}
+                    className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 backdrop-blur"
+                  >
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                      {item.label}
+                    </p>
+                    <p className="mt-1 text-sm font-extrabold text-foreground">{item.value}</p>
+                  </div>
+                ))}
+              </div>
               <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold">
                 <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
                 ลงทะเบียนภายใน 27 มิ.ย. 69 รับ Gift Voucher เรียนฟรี 3,000 บาท!
@@ -1025,9 +1056,9 @@ function LandingPage() {
               {/* Trust badges */}
               <div className="mt-10 flex flex-wrap gap-3">
                 {[
-                  { icon: Users, label: "ที่นั่งจำกัด" },
-                  { icon: Wrench, label: "ลงมือทำจริง" },
-                  { icon: Shield, label: "สอนโดยมืออาชีพ" },
+                  { icon: Users, label: "เหมาะกับผู้ประกอบการ" },
+                  { icon: Wrench, label: "มี Workshop ทำตามจริง" },
+                  { icon: Shield, label: "ยืนยันสิทธิ์เป็นระบบ" },
                 ].map((t) => (
                   <div
                     key={t.label}
@@ -1041,7 +1072,30 @@ function LandingPage() {
             </div>
 
             {/* Right — Chat UI (parallax subtle) */}
-            <ChatDemo />
+            <div className="space-y-4">
+              <ChatDemo />
+              <div className="glass-card rounded-2xl p-5 border-gold/20">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-10 h-10 rounded-xl bg-gold/10 grid place-items-center text-gold">
+                    <CheckSquare className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-extrabold">ขั้นตอนหลังลงทะเบียน</p>
+                    <p className="text-xs text-muted-foreground">ชัดเจน ตรวจสอบได้ ไม่ปล่อยให้รอแบบไม่รู้สถานะ</p>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  {REGISTRATION_STEPS.map((stepLabel, index) => (
+                    <div key={stepLabel} className="flex items-start gap-3 text-sm">
+                      <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gold/15 text-[11px] font-black text-gold">
+                        {index + 1}
+                      </span>
+                      <span className="leading-relaxed text-foreground/85">{stepLabel}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1098,6 +1152,36 @@ function LandingPage() {
               สแกนลงทะเบียนเลย →
             </a>
           </div>
+        </div>
+      </section>
+
+      {/* ── PROFESSIONAL TRUST STRIP ────────────────────────── */}
+      <section className="py-10 relative overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <RevealSection>
+            <div className="grid md:grid-cols-3 gap-4">
+              {PROFESSIONAL_TRUST_ITEMS.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-2xl border border-white/10 bg-card/45 p-5 shadow-card-soft backdrop-blur-sm"
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gold/10 text-gold">
+                      <item.icon className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <h3 className="text-sm font-extrabold leading-snug text-foreground">
+                        {item.title}
+                      </h3>
+                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                        {item.desc}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </RevealSection>
         </div>
       </section>
 
@@ -1595,21 +1679,44 @@ function LandingPage() {
           speed={0.2}
           className="absolute right-0 top-0 w-[500px] h-[500px] bg-[oklch(0.72_0.22_0)]/8 orb orb-3"
         />
-        <div className="relative mx-auto max-w-2xl px-4 sm:px-6">
+        <div className="relative mx-auto max-w-3xl px-4 sm:px-6">
           <RevealSection>
             <p className="text-center text-gold font-bold text-xs uppercase tracking-[0.2em] mb-3">
-              แบบฟอร์มลงทะเบียน
+              Secure Registration
             </p>
             <h2 className="text-center text-3xl sm:text-4xl font-black mb-3">
-              ลงทะเบียนเรียน Workshop
+              ลงทะเบียนเรียน Workshop อย่างเป็นระบบ
             </h2>
             <p className="text-center text-muted-foreground text-sm mb-10">
-              กรอกข้อมูลด้านล่าง ทีมงานจะติดต่อกลับเพื่อยืนยันรายละเอียด
+              กรอกข้อมูลครั้งเดียว ระบบจะสร้างเลขอ้างอิงการจองและทีมงานจะใช้ข้อมูลเพื่อตรวจสอบสิทธิ์เท่านั้น
             </p>
           </RevealSection>
 
           <RevealSection delay={100}>
             <form ref={formRef} onSubmit={onSubmit} className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
+              <div className="rounded-2xl border border-gold/20 bg-gold/5 p-4">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gold/10 text-gold">
+                      <Shield className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-extrabold">ระบบลงทะเบียนอย่างเป็นทางการ</p>
+                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                        ข้อมูลถูกใช้เพื่อออกเลขจอง ติดต่อยืนยันสิทธิ์ ส่ง QR Code และจัดเตรียม Workshop ให้ตรงกับผู้เข้าอบรม
+                      </p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-2 text-center sm:w-72">
+                    {["ข้อมูล", "AI Agent", "ยืนยัน"].map((label, idx) => (
+                      <div key={label} className="rounded-xl bg-white/[0.04] px-2 py-2">
+                        <p className="text-[10px] font-black text-gold">{idx + 1}</p>
+                        <p className="text-[10px] font-bold text-muted-foreground">{label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
 
               {/* ── Step indicator ── */}
               <div className="flex items-center justify-center gap-1 mb-2">
@@ -2132,7 +2239,7 @@ function LandingPage() {
       )}
 
       {/* ── ACCESSIBILITY FLOATING PANEL ────────────────── */}
-      <div className="fixed left-6 bottom-6 z-50 flex flex-col gap-3.5 items-start">
+      <div className="fixed left-3 bottom-3 z-50 flex flex-col gap-2.5 items-start sm:left-6 sm:bottom-6 sm:gap-3.5">
         {/* Toggle Panel Button */}
         <div className="relative group">
           <button
@@ -2141,14 +2248,14 @@ function LandingPage() {
               setAccOpen(openState);
               speak(openState ? "เปิดแถบตัวช่วยสำหรับผู้สูงอายุแล้วค่ะ" : "ปิดแถบตัวช่วยแล้วค่ะ");
             }}
-            className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center border transition-all duration-300 ${
+            className={`w-11 h-11 rounded-full shadow-2xl flex items-center justify-center border transition-all duration-300 sm:h-14 sm:w-14 ${
               accOpen
                 ? "bg-gold border-gold text-primary-foreground rotate-90"
                 : "bg-card hover:bg-muted border-primary/20 text-gold shadow-glow animate-pulse-soft"
             }`}
             title="เครื่องมือช่วยเหลือผู้สูงอายุ (Accessibility Tools)"
           >
-            <Wrench className="w-6 h-6" />
+            <Wrench className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
           {!accOpen && (
             <span className="absolute left-16 top-1/2 -translate-y-1/2 bg-gold text-primary-foreground text-xs font-bold px-3 py-1.5 rounded-xl whitespace-nowrap shadow-lg pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -2240,10 +2347,10 @@ function LandingPage() {
       </div>
 
       {/* ── HERMES AGENT FLOATING CHATBOT ────────────────── */}
-      <div className="fixed right-6 bottom-6 z-50 flex flex-col items-end">
+      <div className="fixed right-3 bottom-3 z-50 flex flex-col items-end sm:right-6 sm:bottom-6">
         {/* Chat Drawer */}
         {chatOpen && (
-          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl border-primary/20 w-80 sm:w-96 h-[520px] flex flex-col mb-4 animate-fade-up relative">
+          <div className="glass-card rounded-3xl overflow-hidden shadow-2xl border-primary/20 w-[calc(100vw-1.5rem)] sm:w-96 h-[min(520px,calc(100vh-7rem))] flex flex-col mb-3 sm:mb-4 animate-fade-up relative">
             {/* Header */}
             <div className="bg-gold-gradient p-4 flex items-center justify-between shadow-glow text-primary-foreground shrink-0">
               <div className="flex items-center gap-3">
@@ -2333,12 +2440,12 @@ function LandingPage() {
         <div className="relative group">
           <button
             onClick={() => setChatOpen(!chatOpen)}
-            className={`w-16 h-16 rounded-full shadow-2xl flex items-center justify-center bg-gold-gradient text-primary-foreground border-2 border-primary/30 transition-transform duration-300 hover:scale-105 ${
+            className={`h-12 w-12 rounded-full shadow-2xl flex items-center justify-center bg-gold-gradient text-primary-foreground border-2 border-primary/30 transition-transform duration-300 hover:scale-105 sm:h-16 sm:w-16 ${
               chatOpen ? "rotate-12" : "animate-pulse"
             }`}
             title="ให้ Hermes Agent ช่วยลงทะเบียน"
           >
-            <Bot className="w-8 h-8" />
+            <Bot className="h-6 w-6 sm:h-8 sm:w-8" />
           </button>
           {!chatOpen && (
             <div className="absolute right-20 top-1/2 -translate-y-1/2 bg-gold-gradient text-primary-foreground text-xs font-black px-4 py-2 rounded-2xl whitespace-nowrap shadow-xl border border-primary/20 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center gap-2">
