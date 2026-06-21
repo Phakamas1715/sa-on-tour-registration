@@ -174,7 +174,7 @@ function buildSaOnTourRegistrationForm() {
 const CONFIG = {
   // URL ของ Supabase Edge Function (register-external)
   SUPABASE_FUNCTION_URL:
-    "https://yrroootkiayippcsmugd.supabase.co/functions/v1/register-external",
+    "https://avahcpkndgsiveueqlcp.supabase.co/functions/v1/register-external",
 
   // API Key ที่ตั้งใน Supabase Secrets ชื่อ EXTERNAL_API_KEY
   API_KEY: "saon-kk-7a27e6419821ac1f586a1970345926af",
