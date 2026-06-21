@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect, useRef, type InputHTMLAttributes } from "react";
 import {
@@ -26,7 +26,6 @@ import {
   CheckSquare,
   List,
   Volume2,
-  VolumeX,
   Eye,
   Lock,
   FileText,
@@ -38,8 +37,23 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { createRegistration } from "@/lib/registrations.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
+
+const LIFF_ID = "2010458070-beALbiun";
+
+const TERMINAL_LINES = [
+  "$ SA-ON Tour Workshop AI Agent System v2.0.26",
+  "> Initializing registration pipeline...",
+  "> Connecting to Supabase yrroootkiayippcsmugd... ✓",
+  "> Validating registration data... ✓",
+  "> Creating workshop ticket SAON-KK-xxxx...",
+  "> Compiling AI Agent config from system prompt...",
+  "> Deploying LINE OA bot to cloud infrastructure... ✓",
+  "> Scheduling LINE OA notification... ✓",
+  "> Build complete! 🚀 Agent เชื่อมต่อสำเร็จ!",
+];
 
 const BG_IMAGES = ["/bg-slide-1.png", "/bg-slide-2.png", "/bg-slide-3.png"];
 
@@ -303,12 +317,24 @@ function LandingPage() {
   const [lineId, setLineId] = useState("");
   const [email, setEmail] = useState("");
   const [province, setProvince] = useState("");
-  const [district, setDistrict] = useState("");
   const [occupation, setOccupation] = useState("");
-  const [businessName, setBusinessName] = useState("");
+  const [interestTopics, setInterestTopics] = useState<string[]>([]);
+  const [ticketType, setTicketType] = useState("");
+  const [needsReceipt, setNeedsReceipt] = useState<boolean | null>(null);
+  const [receiptName, setReceiptName] = useState("");
+  const [receiptTaxId, setReceiptTaxId] = useState("");
+  const [receiptAddress, setReceiptAddress] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentDatetime, setPaymentDatetime] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentProofUrl, setPaymentProofUrl] = useState("");
+  const [notes, setNotes] = useState("");
+  const [systemPrompt, setSystemPrompt] = useState("");
+  const [district, setDistrict] = useState("");
+  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [showTerminal, setShowTerminal] = useState(false);
+  const [terminalVisibleCount, setTerminalVisibleCount] = useState(0);
   const [consent, setConsent] = useState(false);
-  const [interestTopic, setInterestTopic] = useState("");
-  const [hasLineOa, setHasLineOa] = useState("");
   const [highlightField, setHighlightField] = useState<string | null>(null);
 
   // Accessibility states
@@ -333,12 +359,13 @@ function LandingPage() {
     | "full_name"
     | "phone"
     | "line_id"
-    | "interest_topic"
-    | "has_line_oa"
-    | "confirm"
+    | "done"
   >("welcome");
   const [chatInput, setChatInput] = useState("");
   const chatInitializedRef = useRef(false);
+  const formRef = useRef<HTMLFormElement>(null);
+  const [liffUserId, setLiffUserId] = useState("");
+  const liffInitedRef = useRef(false);
 
   // Background slider state
   const [bgIndex, setBgIndex] = useState(0);
@@ -354,6 +381,31 @@ function LandingPage() {
   const parallaxSlow = useParallax(0.25);
   const parallaxMed = useParallax(0.45);
   const parallaxFast = useParallax(0.65);
+
+  // LIFF initialization
+  useEffect(() => {
+    if (liffInitedRef.current || typeof window === "undefined") return;
+    liffInitedRef.current = true;
+    const initLiff = async () => {
+      if (!(window as any).liff) {
+        await new Promise<void>((resolve, reject) => {
+          const s = document.createElement("script");
+          s.src = "https://static.line-scdn.net/liff/edge/2/sdk.js";
+          s.onload = () => resolve();
+          s.onerror = () => reject(new Error("LIFF SDK load failed"));
+          document.head.appendChild(s);
+        });
+      }
+      const liff = (window as any).liff;
+      await liff.init({ liffId: LIFF_ID });
+      if (liff.isLoggedIn()) {
+        const profile = await liff.getProfile();
+        setLiffUserId(profile.userId);
+        setFullName((prev: string) => prev || profile.displayName);
+      }
+    };
+    initLiff().catch((err) => console.warn("[LIFF]", err));
+  }, []);
 
   // Voice Speech Synthesis
   const speak = (text: string) => {
@@ -377,6 +429,18 @@ function LandingPage() {
       document.body.classList.remove("hc-mode");
     }
   }, [highContrast]);
+
+  // Terminal animation
+  useEffect(() => {
+    if (!showTerminal) { setTerminalVisibleCount(0); return; }
+    let count = 0;
+    const timer = setInterval(() => {
+      count++;
+      setTerminalVisibleCount(count);
+      if (count >= TERMINAL_LINES.length) clearInterval(timer);
+    }, 350);
+    return () => clearInterval(timer);
+  }, [showTerminal]);
 
   // Initialize Chat Messages
   useEffect(() => {
@@ -438,19 +502,16 @@ function LandingPage() {
       setLineId(text);
       setHighlightField("line_id");
       setTimeout(() => setHighlightField(null), 1500);
-      setCurrentStep("interest_topic");
+      setCurrentStep("done");
       const botMsg =
-        "บันทึกไลน์ไอดีเรียบร้อยครับ! ทีนี้คุณสนใจเรียนเรื่องใดในเวิร์กช็อปนี้มากที่สุดครับ? (กดเลือกปุ่มด้านล่างได้เลยครับ)";
+        "ข้อมูลพื้นฐานครบแล้วครับ! ผมได้กรอกชื่อ เบอร์โทร และ LINE ID ให้แล้ว กรุณาเลื่อนลงเพื่อกรอกข้อมูลเพิ่มเติม เลือกประเภทบัตร ระบุข้อมูลการชำระเงิน และยืนยันการสมัครครับ 📝";
       setChatMessages((prev) => [
         ...prev,
         {
           sender: "bot",
           text: botMsg,
           options: [
-            { value: "สร้าง AI Agent เชื่อม LINE OA", label: "สร้าง AI Agent LINE OA" },
-            { value: "ใช้ AI ทำคอนเทนต์ TikTok", label: "ทำคอนเทนต์ TikTok" },
-            { value: "Automation & CRM ด้วย AI", label: "Automation & CRM" },
-            { value: "ทุกหัวข้อ", label: "ทุกหัวข้อ" },
+            { value: "scroll_form", label: "ไปที่แบบฟอร์มและกรอกต่อ ↓" },
           ],
         },
       ]);
@@ -600,58 +661,45 @@ function LandingPage() {
         setChatMessages((prev) => [...prev, { sender: "bot", text: botMsg }]);
         speak(botMsg);
       }
-    } else if (currentStep === "interest_topic") {
-      setInterestTopic(value);
-      setHighlightField("interest_topic");
-      setTimeout(() => setHighlightField(null), 1500);
-      setCurrentStep("has_line_oa");
-      const botMsg =
-        "บันทึกความสนใจเรียบร้อยครับ! ทีนี้คุณมีบัญชี LINE OA สำหรับธุรกิจของคุณแล้วหรือยังครับ? เลือกตอบปุ่มด้านล่างได้เลยครับ";
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          sender: "bot",
-          text: botMsg,
-          options: [
-            { value: "มีแล้ว", label: "มีแล้ว" },
-            { value: "ยังไม่มี แต่อยากเริ่มใช้", label: "ยังไม่มี" },
-            { value: "กำลังศึกษาอยู่", label: "กำลังศึกษาอยู่" },
-          ],
-        },
-      ]);
-      speak(botMsg);
-    } else if (currentStep === "has_line_oa") {
-      setHasLineOa(value);
-      setHighlightField("has_line_oa");
-      setTimeout(() => setHighlightField(null), 1500);
-      setCurrentStep("confirm");
-      const botMsg =
-        "ขอบคุณมากครับ! ตอนนี้ข้อมูลครบแล้ว ผมได้ช่วยกรอกข้อมูลลงฟอร์มบนหน้าเว็บเรียบร้อยแล้วครับ รบกวนกดปุ่มด้านล่างนี้เพื่อยินยอมการติดต่อและส่งข้อมูลได้เลยครับ!";
-      setChatMessages((prev) => [
-        ...prev,
-        {
-          sender: "bot",
-          text: botMsg,
-          options: [{ value: "submit_form", label: "ยืนยันและส่งข้อมูลลงทะเบียนเลย 🚀" }],
-        },
-      ]);
-      speak(botMsg);
-    } else if (currentStep === "confirm") {
-      if (value === "submit_form") {
-        setConsent(true);
-        const formElement = document.querySelector("form");
-        if (formElement) {
-          formElement.scrollIntoView({ behavior: "smooth" });
-          setTimeout(() => {
-            formElement.dispatchEvent(new Event("submit", { cancelable: true, bubbles: true }));
-          }, 800);
-        }
+    } else if (currentStep === "done") {
+      if (value === "scroll_form") {
+        formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+        setChatOpen(false);
       }
     }
   };
 
+  function handleNext() {
+    const newErrors: Record<string, string> = {};
+    if (step === 1) {
+      if (!fullName.trim()) newErrors.full_name = "กรุณากรอกชื่อ-นามสกุล";
+      if (!phone.trim()) newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
+      if (!email.trim()) newErrors.email = "กรุณากรอกอีเมล";
+      if (!lineId.trim()) newErrors.line_id = "กรุณากรอก LINE ID";
+      if (!province.trim()) newErrors.province = "กรุณากรอกจังหวัดที่อยู่";
+    }
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
+    setStep((prev) => (prev < 3 ? ((prev + 1) as 1 | 2 | 3) : prev));
+    formRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    const newErrors: Record<string, string> = {};
+    if (needsReceipt === null) newErrors.needs_receipt = "กรุณาระบุว่าต้องการใบเสร็จหรือไม่";
+    if (!consent) newErrors.consent = "กรุณายอมรับเงื่อนไขการสมัคร";
+    setErrors(newErrors);
+    if (Object.keys(newErrors).length > 0) {
+      toast.error("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
+      return;
+    }
+    setShowTerminal(true);
+    setTerminalVisibleCount(0);
+    setSubmitting(true);
     const data = {
       full_name: fullName.trim(),
       phone: phone.trim(),
@@ -660,29 +708,48 @@ function LandingPage() {
       province: province.trim(),
       district: district.trim(),
       occupation: occupation.trim(),
-      business_name: businessName.trim(),
-      interest_topic: interestTopic.trim(),
-      has_line_oa: hasLineOa.trim(),
-      consent: consent,
+      business_name: "",
+      interest_topic: interestTopics.join(", "),
+      has_line_oa: "",
+      ticket_type: "special",
+      needs_receipt: needsReceipt === true,
+      receipt_name: receiptName.trim(),
+      receipt_tax_id: receiptTaxId.trim(),
+      receipt_address: receiptAddress.trim(),
+      payment_method: "",
+      payment_datetime: "",
+      payment_amount: "",
+      payment_proof_url: "",
+      notes: notes.trim(),
+      line_user_id: liffUserId,
+      system_prompt: systemPrompt.trim(),
+      source_channel: "LINE_LIFF",
+      line_display_name: liffUserId ? fullName.trim() : "",
+      consent: true as const,
     };
-    const newErrors: Record<string, string> = {};
-    if (!data.full_name) newErrors.full_name = "กรุณากรอกชื่อ-นามสกุล";
-    if (!data.phone) newErrors.phone = "กรุณากรอกเบอร์โทรศัพท์";
-    if (!data.line_id) newErrors.line_id = "กรุณากรอก LINE ID";
-    if (!data.interest_topic) newErrors.interest_topic = "กรุณาเลือกหัวข้อที่สนใจ";
-    if (!data.has_line_oa) newErrors.has_line_oa = "กรุณาระบุข้อมูล LINE OA";
-    if (!data.consent) newErrors.consent = "กรุณายินยอมให้ติดต่อกลับ";
-    setErrors(newErrors);
-    if (Object.keys(newErrors).length > 0) {
-      toast.error("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
-      return;
-    }
-    setSubmitting(true);
     try {
-      const res = await submit({ data: { ...data, consent: true as const } });
+      const [res] = await Promise.all([
+        submit({ data }),
+        new Promise<void>((resolve) => setTimeout(resolve, TERMINAL_LINES.length * 350 + 600)),
+      ]);
+      if (liffUserId) {
+        supabase.functions.invoke("send-line-message", {
+          body: {
+            to: liffUserId,
+            type: "registration_success",
+            data: {
+              registration_code: res.registration_code,
+              full_name: fullName.trim(),
+              final_price: 2999,
+            },
+            app_origin: window.location.origin,
+          },
+        }).catch((err) => console.warn("[LINE push]", err));
+      }
       navigate({ to: "/success", search: { code: res.registration_code } });
     } catch (err) {
       console.error(err);
+      setShowTerminal(false);
       toast.error("เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
     } finally {
       setSubmitting(false);
@@ -823,6 +890,21 @@ function LandingPage() {
 
         .text-primary-foreground { color: oklch(0.18 0.04 260); }
         .bg-primary-foreground { background: oklch(0.18 0.04 260); }
+
+        /* Fade-up animation for modals & panels */
+        @keyframes fade-up {
+          from { opacity: 0; transform: translateY(20px) scale(0.97); }
+          to   { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-fade-up { animation: fade-up 0.3s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+        /* Subtle pulse for accessibility button */
+        @keyframes pulse-soft { 0%,100%{box-shadow:0 0 0 0 oklch(0.82 0.15 85 / 0.4)} 50%{box-shadow:0 0 0 8px oklch(0.82 0.15 85 / 0)} }
+        .animate-pulse-soft { animation: pulse-soft 2.4s ease-in-out infinite; }
+
+        /* PDPA modal backdrop dark-overlay via CSS so text stays white */
+        .pdpa-content-text { color: oklch(0.92 0.01 260); }
+        .pdpa-muted-text   { color: oklch(0.72 0.03 260); }
       `}</style>
 
       <Toaster richColors position="top-center" />
@@ -1506,304 +1588,284 @@ function LandingPage() {
           </RevealSection>
 
           <RevealSection delay={100}>
-            <form onSubmit={onSubmit} className="glass-card rounded-3xl p-6 sm:p-10 space-y-8">
-              {/* Section 1: Personal Info */}
-              <div className="space-y-5">
-                <div className="flex items-center gap-2 border-b border-border/40 pb-3 mb-5">
-                  <div className="w-8 h-8 rounded-lg bg-gold/10 grid place-items-center text-gold">
-                    <User className="w-4 h-4" />
-                  </div>
-                  <h3 className="font-extrabold text-lg">ข้อมูลส่วนบุคคล</h3>
-                </div>
+            <form ref={formRef} onSubmit={onSubmit} className="glass-card rounded-3xl p-6 sm:p-8 space-y-6">
 
-                <Field
-                  label="ชื่อ-นามสกุล"
-                  name="full_name"
-                  required
-                  error={errors.full_name}
-                  icon={User}
-                  placeholder="เช่น สมชาย ใจดี"
-                  value={fullName}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFullName(e.target.value)}
-                  highlighted={highlightField === "full_name"}
-                />
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <Field
-                    label="เบอร์โทรศัพท์"
-                    name="phone"
-                    type="tel"
-                    required
-                    error={errors.phone}
-                    icon={Phone}
-                    placeholder="0812345678"
-                    value={phone}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
-                    highlighted={highlightField === "phone"}
-                  />
-                  <Field
-                    label="LINE ID"
-                    name="line_id"
-                    required
-                    error={errors.line_id}
-                    icon={Smartphone}
-                    placeholder="Line ID หรือเบอร์ที่ผูก"
-                    value={lineId}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLineId(e.target.value)}
-                    highlighted={highlightField === "line_id"}
-                  />
-                </div>
-                <Field
-                  label="อีเมล (ไม่บังคับ)"
-                  name="email"
-                  type="email"
-                  icon={Mail}
-                  placeholder="example@email.com"
-                  value={email}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-                  highlighted={highlightField === "email"}
-                />
+              {/* ── Step indicator ── */}
+              <div className="flex items-center justify-center gap-1 mb-2">
+                {([1, 2, 3] as const).map((s) => (
+                  <div key={s} className="flex items-center gap-1">
+                    <div className={`w-8 h-8 rounded-full grid place-items-center text-xs font-bold border-2 transition-all duration-300
+                      ${step === s ? "border-gold bg-gold/20 text-gold scale-110" : step > s ? "border-green-400 bg-green-400/20 text-green-400" : "border-border/60 bg-muted/10 text-muted-foreground"}`}>
+                      {step > s ? <CheckCircle2 className="w-4 h-4" /> : s}
+                    </div>
+                    <span className={`text-[11px] font-semibold hidden sm:block mr-1 ${step === s ? "text-gold" : step > s ? "text-green-400" : "text-muted-foreground"}`}>
+                      {s === 1 ? "ข้อมูล" : s === 2 ? "AI Agent" : "ยืนยัน"}
+                    </span>
+                    {s < 3 && <div className={`w-8 h-0.5 mx-1 ${step > s ? "bg-green-400" : "bg-border/50"} transition-all duration-300`} />}
+                  </div>
+                ))}
               </div>
 
-              {/* Section 2: Location & Business */}
-              <div className="space-y-5 pt-2">
-                <div className="flex items-center gap-2 border-b border-border/40 pb-3 mb-5">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 grid place-items-center text-primary">
-                    <MapPin className="w-4 h-4" />
+              {/* ── Step 1: ข้อมูลผู้ดูแล ── */}
+              {step === 1 && (
+                <div className="space-y-5 animate-fade-up">
+                  <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+                    <div className="w-8 h-8 rounded-lg bg-gold/10 grid place-items-center text-gold"><User className="w-4 h-4" /></div>
+                    <div>
+                      <h3 className="font-extrabold text-lg leading-tight">ข้อมูลผู้ดูแล (บอท)</h3>
+                      <p className="text-xs text-muted-foreground">ข้อมูลสำหรับติดต่อกลับและเชื่อมต่อ LINE OA</p>
+                    </div>
                   </div>
-                  <h3 className="font-extrabold text-lg">ข้อมูลพื้นที่และอาชีพ</h3>
-                </div>
 
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <Field
-                    label="จังหวัด"
-                    name="province"
-                    icon={Map}
-                    placeholder="เช่น ขอนแก่น"
-                    value={province}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setProvince(e.target.value)
-                    }
-                    highlighted={highlightField === "province"}
-                  />
-                  <Field
-                    label="อำเภอ"
-                    name="district"
-                    icon={MapPin}
-                    placeholder="เช่น เมืองขอนแก่น"
-                    value={district}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setDistrict(e.target.value)
-                    }
-                    highlighted={highlightField === "district"}
-                  />
-                </div>
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <Field
-                    label="อาชีพ / ธุรกิจ"
-                    name="occupation"
-                    icon={Briefcase}
-                    placeholder="เช่น ค้าขาย, พนักงานออฟฟิศ"
-                    value={occupation}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setOccupation(e.target.value)
-                    }
-                    highlighted={highlightField === "occupation"}
-                  />
-                  <Field
-                    label="ชื่อเพจ / ชื่อธุรกิจ"
-                    name="business_name"
-                    icon={Building}
-                    placeholder="(ถ้ามี)"
-                    value={businessName}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                      setBusinessName(e.target.value)
-                    }
-                    highlighted={highlightField === "business_name"}
-                  />
-                </div>
-              </div>
+                  <Field label="ชื่อ-นามสกุล" name="full_name" required error={errors.full_name} icon={User}
+                    placeholder="เช่น สมชาย ใจดี" value={fullName}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFullName(e.target.value)}
+                    highlighted={highlightField === "full_name"} />
 
-              {/* Section 3: Interests */}
-              <div className="space-y-5 pt-2">
-                <div className="flex items-center gap-2 border-b border-border/40 pb-3 mb-5">
-                  <div className="w-8 h-8 rounded-lg bg-line/10 grid place-items-center text-line">
-                    <List className="w-4 h-4" />
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <Field label="เบอร์โทรศัพท์" name="phone" type="tel" required error={errors.phone} icon={Phone}
+                      placeholder="0812345678" value={phone}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPhone(e.target.value)}
+                      highlighted={highlightField === "phone"} />
+                    <Field label="อีเมล" name="email" type="email" required error={errors.email} icon={Mail}
+                      placeholder="example@email.com" value={email}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+                      highlighted={highlightField === "email"} />
                   </div>
-                  <h3 className="font-extrabold text-lg">ความสนใจ</h3>
-                </div>
 
-                <div
-                  className={`space-y-3 p-3 rounded-2xl transition-all duration-300 ${highlightField === "interest_topic" ? "border border-gold ring-4 ring-gold/40 bg-gold/10 scale-[1.02]" : ""}`}
-                >
-                  <label className="block text-sm font-bold text-foreground/80">
-                    สนใจเรียนเรื่องใดมากที่สุด <span className="text-red-400">*</span>
-                  </label>
-                  <input type="hidden" name="interest_topic" value={interestTopic} />
-                  <div className="grid grid-cols-2 gap-3">
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <Field label="LINE ID" name="line_id" required error={errors.line_id} icon={Smartphone}
+                      placeholder="LINE ID หรือเบอร์ที่ผูก" value={lineId}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setLineId(e.target.value)}
+                      highlighted={highlightField === "line_id"} />
+                    <Field label="จังหวัด" name="province" required error={errors.province} icon={Map}
+                      placeholder="เช่น ขอนแก่น" value={province}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setProvince(e.target.value)}
+                      highlighted={highlightField === "province"} />
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-5">
+                    <Field label="อำเภอ/เขต" name="district" icon={Map}
+                      placeholder="เช่น เมืองขอนแก่น" value={district}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDistrict(e.target.value)} />
+                    <Field label="อาชีพ/ธุรกิจ" name="occupation" icon={Briefcase}
+                      placeholder="เช่น ค้าขาย, ออฟฟิศ" value={occupation}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setOccupation(e.target.value)} />
+                  </div>
+                </div>
+              )}
+
+              {/* ── Step 2: เลือกความสามารถ AI ── */}
+              {step === 2 && (
+                <div className="space-y-6 animate-fade-up">
+                  <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 grid place-items-center text-primary"><Brain className="w-4 h-4" /></div>
+                    <div>
+                      <h3 className="font-extrabold text-lg leading-tight">เลือกความสามารถ AI Agent</h3>
+                      <p className="text-xs text-muted-foreground">เลือกฟังก์ชันที่ต้องการให้บอทของคุณทำได้</p>
+                    </div>
+                  </div>
+
+                  <div className="grid sm:grid-cols-2 gap-3">
                     {[
-                      {
-                        value: "สร้าง AI Agent เชื่อม LINE OA",
-                        label: "สร้าง AI Agent LINE OA",
-                        icon: Bot,
-                        desc: "แชทบอทอัจฉริยะ ตอบคำถามลูกค้าอัตโนมัติ",
-                      },
-                      {
-                        value: "ใช้ AI ทำคอนเทนต์ TikTok",
-                        label: "ทำคอนเทนต์ TikTok",
-                        icon: Video,
-                        desc: "ใช้ AI เขียนบท ตัดต่อคลิป สร้างวิดีโอ",
-                      },
-                      {
-                        value: "Automation & CRM ด้วย AI",
-                        label: "Automation & CRM",
-                        icon: Zap,
-                        desc: "เชื่อมต่อข้อมูล ยอดจอง ระบบ CRM อัตโนมัติ",
-                      },
-                      {
-                        value: "ทุกหัวข้อ",
-                        label: "ทุกหัวข้อ",
-                        icon: Sparkles,
-                        desc: "เรียนรู้ครบวงจรทุกฟีเจอร์ AI",
-                      },
+                      { value: "สร้าง AI Agent เชื่อมต่อ LINE OA", icon: Bot },
+                      { value: "ตอบแชทลูกค้าและจัดการงานประจำอัตโนมัติ", icon: MessageCircle },
+                      { value: "สร้างคอนเทนต์ TikTok ให้เร็วขึ้น", icon: Video },
+                      { value: "ลดงานซ้ำซ้อน ประหยัดเวลา เพิ่มประสิทธิภาพธุรกิจ", icon: Zap },
+                      { value: "อื่นๆ / แจ้งเพิ่มเติมใน System Prompt", icon: Sparkles },
                     ].map((opt) => {
                       const Icon = opt.icon;
-                      const isSelected = interestTopic === opt.value;
+                      const sel = interestTopics.includes(opt.value);
                       return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => setInterestTopic(opt.value)}
-                          className={`flex flex-col items-start p-4 rounded-2xl border text-left transition-all duration-300 ${
-                            isSelected
-                              ? "border-primary bg-primary/10 shadow-glow text-gold"
-                              : "border-border/60 bg-input/40 hover:border-border hover:bg-input/60 text-foreground"
-                          }`}
-                        >
-                          <div
-                            className={`w-8 h-8 rounded-lg grid place-items-center mb-2.5 ${isSelected ? "bg-gold-gradient text-primary-foreground" : "bg-muted/40 text-muted-foreground"}`}
-                          >
-                            <Icon className="w-4 h-4" />
+                        <button key={opt.value} type="button"
+                          onClick={() => setInterestTopics(prev => sel ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
+                          className={`flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all duration-200 ${sel ? "border-primary bg-primary/10 text-gold" : "border-border/60 bg-input/40 hover:border-border text-foreground"}`}>
+                          <div className={`shrink-0 w-7 h-7 rounded-lg grid place-items-center ${sel ? "bg-gold-gradient text-primary-foreground" : "bg-muted/40 text-muted-foreground"}`}>
+                            <Icon className="w-3.5 h-3.5" />
                           </div>
-                          <p className="text-sm font-extrabold">{opt.label}</p>
-                          <p className="text-[10px] text-muted-foreground mt-1 leading-tight">
-                            {opt.desc}
-                          </p>
+                          <span className="text-sm font-semibold leading-tight">{opt.value}</span>
+                          {sel && <CheckCircle2 className="w-4 h-4 text-gold ml-auto shrink-0" />}
                         </button>
                       );
                     })}
                   </div>
-                  {errors.interest_topic && (
-                    <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-red-400" />
-                      {errors.interest_topic}
-                    </p>
-                  )}
-                </div>
 
-                <div
-                  className={`space-y-3 pt-2 p-3 rounded-2xl transition-all duration-300 ${highlightField === "has_line_oa" ? "border border-gold ring-4 ring-gold/40 bg-gold/10 scale-[1.02]" : ""}`}
-                >
-                  <label className="block text-sm font-bold text-foreground/80">
-                    มี LINE OA อยู่แล้วหรือไม่ <span className="text-red-400">*</span>
-                  </label>
-                  <input type="hidden" name="has_line_oa" value={hasLineOa} />
-                  <div className="grid grid-cols-3 gap-2.5">
-                    {[
-                      { value: "มีแล้ว", label: "มีแล้ว", desc: "พร้อมเชื่อมบอท" },
-                      {
-                        value: "ยังไม่มี แต่อยากเริ่มใช้",
-                        label: "ยังไม่มี",
-                        desc: "อยากเริ่มต้นใช้",
-                      },
-                      { value: "กำลังศึกษาอยู่", label: "กำลังศึกษา", desc: "หาข้อมูลเพิ่มเติม" },
-                    ].map((opt) => {
-                      const isSelected = hasLineOa === opt.value;
-                      return (
-                        <button
-                          key={opt.value}
-                          type="button"
-                          onClick={() => setHasLineOa(opt.value)}
-                          className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all duration-300 ${
-                            isSelected
-                              ? "border-primary bg-primary/10 shadow-glow text-gold"
-                              : "border-border/60 bg-input/40 hover:border-border hover:bg-input/60 text-foreground"
-                          }`}
-                        >
-                          <p className="text-sm font-extrabold">{opt.label}</p>
-                          <p className="text-[9px] text-muted-foreground mt-0.5 leading-tight">
-                            {opt.desc}
-                          </p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  {errors.has_line_oa && (
-                    <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-red-400" />
-                      {errors.has_line_oa}
-                    </p>
-                  )}
-                </div>
-              </div>
-
-              {/* Section 4: Consent & Submit */}
-              <div className="pt-6 border-t border-border/40">
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-muted/30 border border-border/30 hover:bg-muted/50 transition-colors">
-                  <div className="relative flex items-start pt-0.5">
-                    <input
-                      type="checkbox"
-                      id="consent"
-                      name="consent"
-                      checked={consent}
-                      onChange={(e) => setConsent(e.target.checked)}
-                      className="peer w-5 h-5 rounded border-border bg-background text-primary focus:ring-2 focus:ring-primary/30 accent-gold cursor-pointer transition-all"
+                  <div className="space-y-2 pt-2">
+                    <div className="flex items-center gap-2">
+                      <Cpu className="w-4 h-4 text-gold" />
+                      <label className="text-sm font-bold text-foreground/80">System Prompt คำสั่งควบคุมบอทของคุณ <span className="text-muted-foreground font-normal">(ไม่บังคับ)</span></label>
+                    </div>
+                    <textarea
+                      rows={5}
+                      placeholder={"เช่น:\nคุณคือผู้ช่วยขายสินค้าของร้าน X\nตอบภาษาไทย สุภาพ เป็นมิตร\nแนะนำสินค้าเมื่อลูกค้าถามราคา..."}
+                      value={systemPrompt}
+                      onChange={(e) => setSystemPrompt(e.target.value)}
+                      className="w-full px-4 py-3.5 rounded-xl bg-input/50 border border-border/60 focus:border-primary focus:ring-2 focus:ring-primary/30 text-foreground outline-none resize-none text-sm transition-all font-mono"
                     />
+                    <p className="text-xs text-muted-foreground">ทีมงานจะใช้ prompt นี้ตั้งค่าบอท AI Agent ของคุณระหว่าง Workshop</p>
                   </div>
-                  <label
-                    htmlFor="consent"
-                    className="text-sm text-muted-foreground leading-relaxed cursor-pointer select-none"
-                  >
-                    ข้าพเจ้ายินยอมให้ทีมงานติดต่อกลับเพื่อยืนยันการลงทะเบียนและแจ้งรายละเอียดเพิ่มเติม
-                    ตามที่ระบุไว้ใน{" "}
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        setPdpaOpen(true);
-                      }}
-                      className="text-gold font-bold underline underline-offset-2 hover:text-gold/80 transition-colors inline-flex items-center gap-1"
-                    >
-                      <Lock className="w-3 h-3" />
-                      นโยบายความเป็นส่วนตัว (PDPA)
-                    </button>
-                    <span className="text-red-400 ml-1 font-bold">*</span>
-                    {errors.consent && (
-                      <p className="text-xs text-red-400 mt-1.5 flex items-center gap-1">
-                        <span className="w-1 h-1 rounded-full bg-red-400" />
-                        {errors.consent}
-                      </p>
-                    )}
-                  </label>
                 </div>
+              )}
 
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="btn-gradient w-full flex items-center justify-center gap-2 mt-6 px-6 py-4 rounded-xl text-base disabled:opacity-60 disabled:cursor-not-allowed shadow-xl hover:shadow-primary/20"
-                >
-                  {submitting ? (
-                    <>
-                      <span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />
-                      กำลังดำเนินการ...
-                    </>
-                  ) : (
-                    <>
-                      ยืนยันการลงทะเบียน <ArrowRight className="w-5 h-5" />
-                    </>
-                  )}
-                </button>
+              {/* ── Step 3: ตรวจสอบข้อมูล & มัดจำ ── */}
+              {step === 3 && (
+                <div className="space-y-5 animate-fade-up">
+                  <div className="flex items-center gap-2 border-b border-border/40 pb-3">
+                    <div className="w-8 h-8 rounded-lg bg-gold/10 grid place-items-center text-gold"><Cog className="w-4 h-4" /></div>
+                    <div>
+                      <h3 className="font-extrabold text-lg leading-tight">ตรวจสอบข้อมูล & มัดจำ</h3>
+                      <p className="text-xs text-muted-foreground">ยืนยันรายละเอียดและชำระเงินมัดจำเพื่อจองสิทธิ์</p>
+                    </div>
+                  </div>
+
+                  {/* Summary card */}
+                  <div className="rounded-2xl p-4 space-y-3 text-sm" style={{ background: "oklch(0.24 0.04 262 / 0.8)", border: "1px solid oklch(0.38 0.04 262 / 0.5)" }}>
+                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "oklch(0.72 0.02 260)" }}>สรุปข้อมูลการลงทะเบียน</p>
+                    <div className="grid sm:grid-cols-2 gap-y-1.5 gap-x-4" style={{ color: "oklch(0.82 0.02 260)" }}>
+                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>ชื่อ: </span><span className="font-semibold">{fullName}</span></span>
+                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>เบอร์: </span><span className="font-semibold">{phone}</span></span>
+                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>LINE: </span><span className="font-semibold">{lineId}</span></span>
+                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>จังหวัด: </span><span className="font-semibold">{province}{district ? ` / ${district}` : ""}</span></span>
+                    </div>
+                    {interestTopics.length > 0 && (
+                      <div className="pt-2 border-t" style={{ borderColor: "oklch(0.38 0.04 262)" }}>
+                        <p className="text-[10px] mb-1.5" style={{ color: "oklch(0.66 0.02 260)" }}>ความสามารถ AI ที่เลือก:</p>
+                        <div className="flex flex-wrap gap-1.5">
+                          {interestTopics.map(t => (
+                            <span key={t} className="text-[10px] font-semibold px-2 py-1 rounded-full bg-gold/15 text-gold border border-gold/20">{t}</span>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Bill display */}
+                  <div className="rounded-2xl overflow-hidden" style={{ border: "1px solid oklch(0.7 0.18 50 / 0.5)" }}>
+                    <div className="p-5 text-center" style={{ background: "oklch(0.26 0.08 50 / 0.5)" }}>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-1">ใบบิลมัดจำจองสิทธิ์ – ราคาพิเศษ</p>
+                      <p className="text-4xl font-black text-gold">2,999 <span className="text-lg font-bold">บาท</span></p>
+                      <p className="text-xs line-through mt-0.5 text-muted-foreground">ราคาปกติ 5,999 บาท</p>
+                    </div>
+                    <div className="p-4 space-y-3" style={{ background: "oklch(0.22 0.05 262 / 0.9)" }}>
+                      <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
+                        <div className="w-9 h-9 rounded-xl grid place-items-center bg-green-500/15 shrink-0 font-black text-green-400">K</div>
+                        <div>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">ธนาคารกสิกรไทย</p>
+                          <p className="font-extrabold text-gold text-lg leading-tight">405-3-05346-3</p>
+                          <p className="text-xs text-muted-foreground">อัจฉรีญา โถนารัตน์</p>
+                        </div>
+                      </div>
+                      <div className="p-2.5 rounded-xl text-xs font-semibold leading-relaxed"
+                        style={{ background: "oklch(0.7 0.18 50 / 0.08)", border: "1px solid oklch(0.7 0.18 50 / 0.25)", color: "oklch(0.88 0.06 50)" }}>
+                        💡 หลังกดยืนยัน: โอนเงิน 2,999 บาท แล้วส่งรูปสลิปทาง LINE เจ้าหน้าที่เพื่อปลดล็อก QR Code ตั๋วเข้างาน
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Receipt */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 border-b border-border/40 pb-2">
+                      <div className="w-7 h-7 rounded-lg bg-gold/10 grid place-items-center text-gold"><FileText className="w-3.5 h-3.5" /></div>
+                      <h4 className="font-bold text-sm">ต้องการใบเสร็จ? <span className="text-red-400">*</span></h4>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {[{ value: true, label: "ต้องการ" }, { value: false, label: "ไม่ต้องการ" }].map((opt) => {
+                        const sel = needsReceipt === opt.value;
+                        return (
+                          <button key={String(opt.value)} type="button" onClick={() => setNeedsReceipt(opt.value)}
+                            className={`py-2.5 rounded-2xl border text-sm font-bold transition-all ${sel ? "border-gold bg-gold/10 text-gold shadow-glow" : "border-border/60 bg-input/40 hover:border-border text-foreground"}`}>
+                            {opt.label}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    {errors.needs_receipt && <p className="text-xs text-red-400 flex items-center gap-1"><span className="w-1 h-1 rounded-full bg-red-400" />{errors.needs_receipt}</p>}
+                    {needsReceipt === true && (
+                      <div className="space-y-4 pt-2 pl-3 border-l-2 border-gold/30">
+                        <Field label="ชื่อ/บริษัท สำหรับออกใบเสร็จ" name="receipt_name" icon={Building}
+                          placeholder="ชื่อบุคคล หรือชื่อบริษัท" value={receiptName}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReceiptName(e.target.value)} />
+                        <Field label="เลขประจำตัวผู้เสียภาษี" name="receipt_tax_id" icon={FileText}
+                          placeholder="เช่น 1234567890123" value={receiptTaxId}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setReceiptTaxId(e.target.value)} />
+                        <div>
+                          <label className="block text-sm font-bold mb-2 text-foreground/80">ที่อยู่สำหรับออกใบเสร็จ</label>
+                          <textarea rows={3} placeholder="บ้านเลขที่ ถนน ตำบล อำเภอ จังหวัด รหัสไปรษณีย์"
+                            value={receiptAddress} onChange={(e) => setReceiptAddress(e.target.value)}
+                            className="w-full px-4 py-3 rounded-xl bg-input/50 border border-border/60 focus:border-primary focus:ring-2 focus:ring-primary/30 text-foreground outline-none resize-none text-sm transition-all" />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Notes */}
+                  <div>
+                    <label className="block text-sm font-bold mb-2 text-foreground/80">หมายเหตุเพิ่มเติม</label>
+                    <textarea rows={2} placeholder="ข้อมูลเพิ่มเติม (ไม่บังคับ)"
+                      value={notes} onChange={(e) => setNotes(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-input/50 border border-border/60 focus:border-primary focus:ring-2 focus:ring-primary/30 text-foreground outline-none resize-none text-sm transition-all" />
+                  </div>
+
+                  {/* Terms + Consent */}
+                  <div className="pt-2 border-t border-border/40 space-y-4">
+                    <div className="rounded-2xl p-4 space-y-2 text-xs" style={{ background: "oklch(0.24 0.04 262 / 0.8)", border: "1px solid oklch(0.38 0.04 262 / 0.5)", color: "oklch(0.78 0.02 260)" }}>
+                      {[
+                        "การจองสมบูรณ์เมื่อทีมงานได้รับและตรวจสอบสลิปมัดจำ 2,999 บาทแล้ว",
+                        "คูปอง Gift Voucher 3,000 บาท จะถูกส่งทาง LINE หลังอนุมัติมัดจำ",
+                        "กรุณานำ QR Code จาก LINE มาแสดงที่หน้างานสัมมนา",
+                        "ทีมงานจะยืนยันสิทธิ์ภายใน 24 ชั่วโมงหลังได้รับสลิป",
+                        "การยกเลิกหรือคืนเงินเป็นไปตามเงื่อนไขของผู้จัดงาน",
+                        "ข้อมูลส่วนบุคคลใช้เพื่อการลงทะเบียนและยืนยันสิทธิ์เท่านั้น",
+                      ].map((item, i) => (
+                        <div key={i} className="flex items-start gap-2">
+                          <span className="shrink-0 w-4 h-4 rounded-full bg-gold/20 text-gold text-[9px] font-black grid place-items-center mt-0.5">{i + 1}</span>
+                          <span className="leading-relaxed">{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                    <div className={`flex items-start gap-3 p-4 rounded-xl border transition-colors ${consent ? "bg-gold/5 border-gold/30" : "bg-muted/30 border-border/30 hover:bg-muted/50"}`}>
+                      <input type="checkbox" id="consent" checked={consent} onChange={(e) => setConsent(e.target.checked)}
+                        className="w-5 h-5 mt-0.5 shrink-0 rounded border-border bg-background accent-gold cursor-pointer" />
+                      <label htmlFor="consent" className="text-sm text-foreground/90 leading-relaxed cursor-pointer select-none">
+                        ข้าพเจ้ายืนยันว่าข้อมูลถูกต้อง ยอมรับเงื่อนไขการสมัคร และ{" "}
+                        <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); setPdpaOpen(true); }}
+                          className="text-gold font-bold underline underline-offset-2 hover:text-gold/80 inline-flex items-center gap-1">
+                          <Lock className="w-3 h-3" />นโยบาย PDPA
+                        </button>
+                        <span className="text-red-400 ml-1">*</span>
+                      </label>
+                    </div>
+                    {errors.consent && <p className="text-xs text-red-400 flex items-center gap-1 -mt-2"><span className="w-1 h-1 rounded-full bg-red-400" />{errors.consent}</p>}
+                  </div>
+                </div>
+              )}
+
+              {/* ── Navigation ── */}
+              <div className="flex items-center gap-3 pt-2 border-t border-border/40">
+                {step > 1 && (
+                  <button type="button" onClick={() => { setStep((s) => (s - 1) as 1 | 2 | 3); setErrors({}); }}
+                    className="px-5 py-3 rounded-xl border border-border/60 bg-input/40 font-semibold text-sm hover:border-border transition">
+                    ← ย้อนกลับ
+                  </button>
+                )}
+                {step < 3 && (
+                  <button type="button" onClick={handleNext}
+                    className="ml-auto btn-gradient flex items-center gap-2 px-6 py-3 rounded-xl text-sm font-bold shadow-glow">
+                    ถัดไป <ArrowRight className="w-4 h-4" />
+                  </button>
+                )}
+                {step === 3 && (
+                  <button type="submit" disabled={submitting}
+                    className="ml-auto btn-gradient flex items-center gap-2 px-6 py-4 rounded-xl text-base font-bold shadow-xl disabled:opacity-60 disabled:cursor-not-allowed">
+                    {submitting ? (
+                      <><span className="w-5 h-5 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full animate-spin" />กำลังดำเนินการ...</>
+                    ) : (
+                      <>ยืนยันการจองมัดจำ 2,999.- <ArrowRight className="w-5 h-5" /></>
+                    )}
+                  </button>
+                )}
               </div>
+
             </form>
           </RevealSection>
         </div>
@@ -1886,11 +1948,11 @@ function LandingPage() {
             </div>
 
             {/* Modal Content */}
-            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6 text-foreground">
+            <div className="flex-1 overflow-y-auto p-6 sm:p-8 space-y-6" style={{ color: "oklch(0.93 0.01 260)" }}>
               {/* Summary Banner */}
-              <div className="bg-gold/5 border border-gold/15 rounded-2xl p-4 flex items-start gap-3">
+              <div className="rounded-2xl p-4 flex items-start gap-3" style={{ background: "oklch(0.82 0.15 85 / 0.12)", border: "1px solid oklch(0.82 0.15 85 / 0.3)" }}>
                 <Eye className="w-5 h-5 text-gold shrink-0 mt-0.5" />
-                <p className="text-sm leading-relaxed">
+                <p className="text-sm leading-relaxed font-medium">
                   เราให้ความสำคัญกับข้อมูลส่วนบุคคลของคุณ
                   ข้อมูลที่คุณกรอกในแบบฟอร์มนี้จะถูกเก็บรักษาอย่างปลอดภัยตาม พ.ร.บ.
                   คุ้มครองข้อมูลส่วนบุคคล พ.ศ. 2562 (PDPA)
@@ -1900,12 +1962,12 @@ function LandingPage() {
               {/* Section 1 */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-gold/10 grid place-items-center">
+                  <div className="w-7 h-7 rounded-lg bg-gold/20 grid place-items-center">
                     <FileText className="w-3.5 h-3.5 text-gold" />
                   </div>
-                  <h4 className="text-sm font-extrabold">1. ข้อมูลที่เราเก็บรวบรวม</h4>
+                  <h4 className="text-sm font-extrabold" style={{ color: "oklch(0.96 0.01 260)" }}>1. ข้อมูลที่เราเก็บรวบรวม</h4>
                 </div>
-                <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed pl-4">
+                <ul className="space-y-2 text-sm leading-relaxed pl-4" style={{ color: "oklch(0.82 0.02 260)" }}>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-gold shrink-0 mt-1" />
                     <span>ชื่อ-นามสกุล, เบอร์โทรศัพท์, LINE ID, อีเมล</span>
@@ -1924,12 +1986,12 @@ function LandingPage() {
               {/* Section 2 */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-primary/10 grid place-items-center">
+                  <div className="w-7 h-7 rounded-lg bg-primary/20 grid place-items-center">
                     <Shield className="w-3.5 h-3.5 text-primary" />
                   </div>
-                  <h4 className="text-sm font-extrabold">2. วัตถุประสงค์ในการใช้ข้อมูล</h4>
+                  <h4 className="text-sm font-extrabold" style={{ color: "oklch(0.96 0.01 260)" }}>2. วัตถุประสงค์ในการใช้ข้อมูล</h4>
                 </div>
-                <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed pl-4">
+                <ul className="space-y-2 text-sm leading-relaxed pl-4" style={{ color: "oklch(0.82 0.02 260)" }}>
                   <li className="flex items-start gap-2">
                     <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0 mt-1" />
                     <span>เพื่อยืนยันการลงทะเบียนและติดต่อกลับท่าน</span>
@@ -1952,12 +2014,12 @@ function LandingPage() {
               {/* Section 3 */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-line/10 grid place-items-center">
-                    <Lock className="w-3.5 h-3.5 text-line" />
+                  <div className="w-7 h-7 rounded-lg grid place-items-center" style={{ background: "#06C75520" }}>
+                    <Lock className="w-3.5 h-3.5" style={{ color: "#06C755" }} />
                   </div>
-                  <h4 className="text-sm font-extrabold">3. การรักษาความปลอดภัย</h4>
+                  <h4 className="text-sm font-extrabold" style={{ color: "oklch(0.96 0.01 260)" }}>3. การรักษาความปลอดภัย</h4>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed pl-4">
+                <p className="text-sm leading-relaxed pl-4" style={{ color: "oklch(0.82 0.02 260)" }}>
                   ข้อมูลของท่านจะถูกจัดเก็บอย่างปลอดภัยในระบบที่มีการเข้ารหัส
                   และจะไม่ถูกเปิดเผยต่อบุคคลภายนอกโดยไม่ได้รับอนุญาต
                   เว้นแต่จะเป็นไปตามที่กฎหมายกำหนด
@@ -1967,26 +2029,26 @@ function LandingPage() {
               {/* Section 4 */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-tiktok/10 grid place-items-center">
-                    <User className="w-3.5 h-3.5 text-tiktok" />
+                  <div className="w-7 h-7 rounded-lg grid place-items-center" style={{ background: "#EE1D5220" }}>
+                    <User className="w-3.5 h-3.5" style={{ color: "#EE1D52" }} />
                   </div>
-                  <h4 className="text-sm font-extrabold">4. สิทธิของเจ้าของข้อมูล</h4>
+                  <h4 className="text-sm font-extrabold" style={{ color: "oklch(0.96 0.01 260)" }}>4. สิทธิของเจ้าของข้อมูล</h4>
                 </div>
-                <ul className="space-y-2 text-sm text-muted-foreground leading-relaxed pl-4">
+                <ul className="space-y-2 text-sm leading-relaxed pl-4" style={{ color: "oklch(0.82 0.02 260)" }}>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-tiktok shrink-0 mt-1" />
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-1" style={{ color: "#EE1D52" }} />
                     <span>สิทธิในการเข้าถึง แก้ไข ลบข้อมูลส่วนบุคคลของท่าน</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-tiktok shrink-0 mt-1" />
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-1" style={{ color: "#EE1D52" }} />
                     <span>สิทธิในการระงับ หรือคัดค้านการประมวลผลข้อมูล</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-tiktok shrink-0 mt-1" />
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-1" style={{ color: "#EE1D52" }} />
                     <span>สิทธิในการเพิกถอนความยินยอมได้ตลอดเวลา</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <CheckCircle2 className="w-3.5 h-3.5 text-tiktok shrink-0 mt-1" />
+                    <CheckCircle2 className="w-3.5 h-3.5 shrink-0 mt-1" style={{ color: "#EE1D52" }} />
                     <span>สิทธิในการร้องเรียนต่อหน่วยงานที่กำกับดูแล</span>
                   </li>
                 </ul>
@@ -1995,12 +2057,12 @@ function LandingPage() {
               {/* Section 5 */}
               <div>
                 <div className="flex items-center gap-2 mb-3">
-                  <div className="w-7 h-7 rounded-lg bg-gold/10 grid place-items-center">
+                  <div className="w-7 h-7 rounded-lg bg-gold/20 grid place-items-center">
                     <Mail className="w-3.5 h-3.5 text-gold" />
                   </div>
-                  <h4 className="text-sm font-extrabold">5. ช่องทางติดต่อ</h4>
+                  <h4 className="text-sm font-extrabold" style={{ color: "oklch(0.96 0.01 260)" }}>5. ช่องทางติดต่อ</h4>
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed pl-4">
+                <p className="text-sm leading-relaxed pl-4" style={{ color: "oklch(0.82 0.02 260)" }}>
                   หากมีข้อสงสัยหรือต้องการใช้สิทธิตามกฎหมาย PDPA สามารถติดต่อเราผ่านทาง{" "}
                   <a
                     href="https://www.facebook.com/share/1CYyEYkj81/?mibextid=wwXIfr"
@@ -2014,9 +2076,9 @@ function LandingPage() {
               </div>
 
               {/* Period */}
-              <div className="bg-muted/30 rounded-2xl p-4 border border-border/30">
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  <span className="font-bold text-foreground">ระยะเวลาการเก็บข้อมูล:</span>{" "}
+              <div className="rounded-2xl p-4" style={{ background: "oklch(0.26 0.04 262 / 0.8)", border: "1px solid oklch(0.4 0.03 262 / 0.5)" }}>
+                <p className="text-xs leading-relaxed" style={{ color: "oklch(0.78 0.02 260)" }}>
+                  <span className="font-bold" style={{ color: "oklch(0.96 0.01 260)" }}>ระยะเวลาการเก็บข้อมูล:</span>{" "}
                   ข้อมูลจะถูกเก็บรักษาไว้ตลอดระยะเวลาที่จำเป็นเพื่อบรรลุวัตถุประสงค์ข้างต้น
                   หรือตามที่กฎหมายกำหนด เมื่อพ้นกำหนดแล้วจะดำเนินการลบหรือทำให้ไม่สามารถระบุตัวตนได้
                 </p>
@@ -2038,7 +2100,8 @@ function LandingPage() {
               </button>
               <button
                 onClick={() => setPdpaOpen(false)}
-                className="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold border border-border/60 bg-card/30 hover:bg-card/60 transition-colors text-muted-foreground"
+                className="flex-1 w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3 rounded-xl text-sm font-bold border transition-colors"
+                style={{ borderColor: "oklch(0.5 0.03 262 / 0.6)", background: "oklch(0.26 0.04 262 / 0.6)", color: "oklch(0.88 0.02 260)" }}
               >
                 ปิด
               </button>
@@ -2264,6 +2327,34 @@ function LandingPage() {
           )}
         </div>
       </div>
+
+      {/* ── TERMINAL ANIMATION OVERLAY ──────────────────── */}
+      {showTerminal && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center px-4">
+          <div className="w-full max-w-lg rounded-2xl overflow-hidden shadow-2xl border border-green-500/30 animate-fade-up">
+            <div className="flex items-center gap-2 px-4 py-3 bg-zinc-900 border-b border-green-500/20">
+              <span className="w-3 h-3 rounded-full bg-red-500/80" />
+              <span className="w-3 h-3 rounded-full bg-yellow-500/80" />
+              <span className="w-3 h-3 rounded-full bg-green-500/80" />
+              <span className="ml-2 text-xs text-zinc-400 font-mono">SA-ON Agent Deploy Terminal</span>
+            </div>
+            <div className="bg-zinc-950 p-5 min-h-[220px] font-mono text-sm space-y-1.5">
+              {TERMINAL_LINES.slice(0, terminalVisibleCount).map((line, i) => (
+                <div key={i} className={`animate-fade-up ${
+                  i === 0 ? "text-yellow-400" :
+                  line.includes("✓") ? "text-green-400" :
+                  line.includes("🚀") ? "text-gold" :
+                  "text-green-300"
+                }`}>{line}</div>
+              ))}
+              {terminalVisibleCount < TERMINAL_LINES.length && (
+                <span className="inline-block w-2 h-4 bg-green-400 animate-pulse" />
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }

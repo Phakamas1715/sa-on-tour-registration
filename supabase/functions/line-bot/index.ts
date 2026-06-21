@@ -178,7 +178,7 @@ serve(async (req) => {
                   action: {
                     type: "uri",
                     label: "ลงทะเบียนรับสิทธิ์ 2,999.-",
-                    uri: "https://bookingworkshop-agent.lovable.app",
+                    uri: "https://liff.line.me/2010458070-beALbiun",
                   },
                 },
                 {

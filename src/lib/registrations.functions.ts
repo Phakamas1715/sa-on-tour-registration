@@ -6,20 +6,33 @@ const registrationSchema = z.object({
   full_name: z.string().trim().min(1).max(120),
   phone: z.string().trim().min(6).max(30),
   line_id: z.string().trim().min(1).max(80),
-  email: z.string().trim().email().max(200).optional().or(z.literal("")),
+  email: z.string().trim().max(200).optional().or(z.literal("")),
   province: z.string().trim().max(80).optional().or(z.literal("")),
   district: z.string().trim().max(80).optional().or(z.literal("")),
   occupation: z.string().trim().max(200).optional().or(z.literal("")),
   business_name: z.string().trim().max(200).optional().or(z.literal("")),
-  interest_topic: z.string().trim().max(120).optional().or(z.literal("")),
+  interest_topic: z.string().trim().max(500).optional().or(z.literal("")),
   has_line_oa: z.string().trim().max(40).optional().or(z.literal("")),
+  ticket_type: z.string().trim().max(40).optional().or(z.literal("")),
+  needs_receipt: z.boolean().optional(),
+  receipt_name: z.string().trim().max(200).optional().or(z.literal("")),
+  receipt_tax_id: z.string().trim().max(30).optional().or(z.literal("")),
+  receipt_address: z.string().trim().max(500).optional().or(z.literal("")),
+  payment_method: z.string().trim().max(40).optional().or(z.literal("")),
+  payment_datetime: z.string().trim().max(50).optional().or(z.literal("")),
+  payment_amount: z.string().trim().max(30).optional().or(z.literal("")),
+  payment_proof_url: z.string().trim().max(1000).optional().or(z.literal("")),
+  notes: z.string().trim().max(2000).optional().or(z.literal("")),
+  line_user_id: z.string().trim().max(50).optional().or(z.literal("")),
+  system_prompt: z.string().trim().max(2000).optional().or(z.literal("")),
+  source_channel: z.string().trim().max(40).optional().or(z.literal("")),
+  line_display_name: z.string().trim().max(200).optional().or(z.literal("")),
   consent: z.literal(true),
 });
 
 export const createRegistration = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => registrationSchema.parse(data))
   .handler(async ({ data }) => {
-    // Graceful fallback for local development when service role key is not configured
     if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
       console.warn(
         "[createRegistration] SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to Mock Registration Mode for local development.",
@@ -38,10 +51,25 @@ export const createRegistration = createServerFn({ method: "POST" })
       business_name: data.business_name || null,
       interest_topic: data.interest_topic || null,
       has_line_oa: data.has_line_oa || null,
+      ticket_type: data.ticket_type || null,
+      needs_receipt: data.needs_receipt ?? false,
+      receipt_name: data.receipt_name || null,
+      receipt_tax_id: data.receipt_tax_id || null,
+      receipt_address: data.receipt_address || null,
+      payment_method: data.payment_method || null,
+      payment_datetime: data.payment_datetime || null,
+      payment_amount: data.payment_amount || null,
+      payment_proof_url: data.payment_proof_url || null,
+      notes: data.notes || null,
+      line_user_id: data.line_user_id || null,
+      system_prompt: data.system_prompt || null,
+      source_channel: data.source_channel || "LINE_LIFF",
+      line_display_name: data.line_display_name || null,
     };
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: row, error } = await supabaseAdmin
       .from("registrations")
-      .insert(payload)
+      .insert(payload as any)
       .select("registration_code")
       .single();
     if (error) throw new Error(error.message);
@@ -104,4 +132,80 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
       _role: "admin",
     });
     return { isAdmin: data === true };
+  });
+
+export const lookupForCheckin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ code: z.string().trim().min(1).max(30) }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
+      .from("registrations")
+      .select("*, coupons(*)")
+      .eq("registration_code", data.code)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return (row ?? null) as any;
+  });
+
+export const approveDeposit = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ id: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: result, error } = await (context.supabase as any).rpc("approve_deposit", {
+      _registration_id: data.id,
+    });
+    if (error) throw new Error((error as { message: string }).message);
+    const meta = result as { token: string; registration_code: string; full_name: string; line_user_id: string | null };
+    if (meta.line_user_id) {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.functions.invoke("send-line-message", {
+        body: {
+          to: meta.line_user_id,
+          type: "payment_confirmed",
+          data: {
+            registration_code: meta.registration_code,
+            full_name: meta.full_name,
+            coupon_token: meta.token,
+            amount: 2999,
+          },
+        },
+      });
+    }
+    return { ok: true, token: meta.token };
+  });
+
+export const checkinRegistration = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) =>
+    z.object({ id: z.string().uuid() }).parse(data),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    if (!isAdmin) throw new Error("Forbidden");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (context.supabase as any).rpc("checkin_registration", {
+      _registration_id: data.id,
+    });
+    if (error) throw new Error((error as { message: string }).message);
+    return { ok: true };
   });

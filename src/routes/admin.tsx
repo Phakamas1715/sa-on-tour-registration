@@ -28,8 +28,16 @@ type Reg = {
   district: string | null;
   occupation: string | null;
   interest_topic: string | null;
+  source_channel?: string | null;
   status: string;
   created_at: string;
+};
+
+const SOURCE_BADGE: Record<string, { label: string; color: string }> = {
+  GOOGLE_FORM_EXPO:    { label: "Google Form", color: "bg-blue-500/15 text-blue-400 border-blue-500/30" },
+  LINE_LIFF:           { label: "LINE LIFF",   color: "bg-green-500/15 text-green-400 border-green-500/30" },
+  LINE_LIFF_NUMNAKOM:  { label: "LIFF หนุ่มนักออม", color: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
+  LINE_LIFF_PREMIUM:   { label: "LIFF Premium",  color: "bg-purple-500/15 text-purple-400 border-purple-500/30" },
 };
 
 const STATUSES = [
@@ -222,6 +230,7 @@ function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [channelFilter, setChannelFilter] = useState<string>("all");
 
   async function refresh() {
     setLoading(true);
@@ -244,6 +253,7 @@ function AdminDashboard() {
   const filtered = useMemo(() => {
     return rows.filter((r) => {
       if (statusFilter !== "all" && r.status !== statusFilter) return false;
+      if (channelFilter !== "all" && (r.source_channel ?? "LINE_LIFF") !== channelFilter) return false;
       if (q) {
         const s = q.toLowerCase();
         return (
@@ -269,6 +279,7 @@ function AdminDashboard() {
   function exportCsv() {
     const headers = [
       "Registration ID",
+      "Source Channel",
       "Full name",
       "Phone",
       "LINE ID",
@@ -285,6 +296,7 @@ function AdminDashboard() {
       lines.push(
         [
           r.registration_code,
+          r.source_channel ?? "LINE_LIFF",
           r.full_name,
           r.phone,
           r.line_id,
@@ -353,9 +365,17 @@ function AdminDashboard() {
           >
             <option value="all">ทุกสถานะ</option>
             {STATUSES.map((s) => (
-              <option key={s.v} value={s.v}>
-                {s.label}
-              </option>
+              <option key={s.v} value={s.v}>{s.label}</option>
+            ))}
+          </select>
+          <select
+            value={channelFilter}
+            onChange={(e) => setChannelFilter(e.target.value)}
+            className="px-4 py-2.5 rounded-xl bg-input border border-border outline-none focus:border-primary"
+          >
+            <option value="all">ทุกช่องทาง</option>
+            {Object.entries(SOURCE_BADGE).map(([v, b]) => (
+              <option key={v} value={v}>{b.label}</option>
             ))}
           </select>
           <button
@@ -372,6 +392,7 @@ function AdminDashboard() {
               <thead className="bg-secondary text-left text-xs uppercase tracking-wider">
                 <tr>
                   <th className="px-4 py-3">รหัส</th>
+                  <th className="px-4 py-3">ช่องทาง</th>
                   <th className="px-4 py-3">ชื่อ</th>
                   <th className="px-4 py-3">เบอร์</th>
                   <th className="px-4 py-3">LINE</th>
@@ -400,6 +421,17 @@ function AdminDashboard() {
                     <tr key={r.id} className="border-t border-border hover:bg-secondary/40">
                       <td className="px-4 py-3 font-mono text-xs text-gold">
                         {r.registration_code}
+                      </td>
+                      <td className="px-4 py-3">
+                        {(() => {
+                          const ch = r.source_channel ?? "LINE_LIFF";
+                          const b = SOURCE_BADGE[ch] ?? { label: ch, color: "bg-muted/20 text-muted-foreground border-border" };
+                          return (
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${b.color}`}>
+                              {b.label}
+                            </span>
+                          );
+                        })()}
                       </td>
                       <td className="px-4 py-3 font-semibold">{r.full_name}</td>
                       <td className="px-4 py-3">{r.phone}</td>

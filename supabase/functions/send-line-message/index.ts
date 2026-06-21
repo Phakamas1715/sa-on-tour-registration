@@ -97,7 +97,7 @@ function registrationSuccessMessage(req: Request, body: MessageRequest) {
               row("รหัส", registrationCode),
               row("ชื่อ", fullName),
               row("ยอดมัดจำ", `${finalPrice} บาท`),
-              row("ธนาคาร", "กสิกรไทย 123-4-56789-0"),
+              row("ธนาคาร", "กสิกรไทย 405-3-05346-3 / อัจฉรีญา โถนารัตน์"),
             ],
           },
           {
