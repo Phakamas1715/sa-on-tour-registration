@@ -6,7 +6,11 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/success")({
-  validateSearch: (s: Record<string, unknown>) => z.object({ code: z.string().optional() }).parse(s),
+  validateSearch: (s: Record<string, unknown>) =>
+    z.object({
+      code: z.string().optional(),
+      slip: z.boolean().optional().or(z.string().transform((v) => v === "true")),
+    }).parse(s),
   head: () => ({
     meta: [{ title: "จองสิทธิ์สำเร็จ – สะออนทัวร์ Workshop" }],
   }),
@@ -16,7 +20,7 @@ export const Route = createFileRoute("/success")({
 const LINE_OA_URL = "https://line.me/R/ti/p/@saontour";
 
 function SuccessPage() {
-  const { code } = Route.useSearch();
+  const { code, slip } = Route.useSearch();
   const [copied, setCopied] = useState(false);
 
   function copyCode() {
@@ -143,7 +147,15 @@ function SuccessPage() {
                 className="p-3 rounded-xl text-xs font-semibold leading-relaxed"
                 style={{ background: "oklch(0.7 0.18 50 / 0.08)", border: "1px solid oklch(0.7 0.18 50 / 0.2)", color: "oklch(0.88 0.06 50)" }}
               >
-                📌 ขั้นตอนถัดไป: โอนเงิน 2,999 บาท แล้วส่งรูปสลิป พร้อมรหัส <strong>{code ?? "SAON-KK-XXXX"}</strong> ทาง LINE เจ้าหน้าที่ด้านล่างได้เลย
+                {slip ? (
+                  <span>
+                    📌 <strong>ได้รับสลิปแล้ว:</strong> ระบบได้รับหลักฐานการโอนเงินและข้อมูลของท่านแล้ว เจ้าหน้าที่จะตรวจสอบสลิปและส่งตั๋ว QR Code ให้ท่านทาง LINE OA
+                  </span>
+                ) : (
+                  <span>
+                    📌 <strong>ขั้นตอนถัดไป:</strong> โอนเงิน 2,999 บาท แล้วส่งรูปสลิป พร้อมรหัส <strong>{code ?? "SAON-KK-XXXX"}</strong> ทาง LINE เจ้าหน้าที่ด้านล่างได้เลย
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -163,7 +175,7 @@ function SuccessPage() {
               style={{ background: "#06C755" }}
             >
               <MessageCircle className="w-5 h-5" />
-              ส่งสลิปทาง LINE เจ้าหน้าที่
+              {slip ? "ติดต่อสอบถามทาง LINE OA" : "ส่งสลิปทาง LINE เจ้าหน้าที่"}
             </a>
             <Link
               to="/"

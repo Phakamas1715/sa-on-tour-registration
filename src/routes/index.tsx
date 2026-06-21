@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { z } from "zod";
 import { useServerFn } from "@tanstack/react-start";
 import { useState, useEffect, useRef, type InputHTMLAttributes } from "react";
 import {
@@ -34,9 +35,12 @@ import {
   Cpu,
   Cog,
   Send,
+  CreditCard,
+  UploadCloud,
   type LucideIcon,
 } from "lucide-react";
 import { createRegistration } from "@/lib/registrations.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -70,6 +74,10 @@ const REGISTRATION_STEPS = [
 ];
 
 export const Route = createFileRoute("/")({
+  validateSearch: (s: Record<string, unknown>) =>
+    z.object({
+      g: z.string().optional(),
+    }).parse(s),
   head: () => ({
     meta: [
       {
@@ -319,6 +327,7 @@ function ChatDemo() {
 // ─── Landing Page ─────────────────────────────────────────────────
 function LandingPage() {
   const navigate = useNavigate();
+  const { g } = Route.useSearch();
   const submit = useServerFn(createRegistration);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -336,9 +345,9 @@ function LandingPage() {
   const [receiptName, setReceiptName] = useState("");
   const [receiptTaxId, setReceiptTaxId] = useState("");
   const [receiptAddress, setReceiptAddress] = useState("");
-  const [paymentMethod, setPaymentMethod] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState("โอนเงินผ่านบัญชีธนาคาร (กสิกรไทย)");
   const [paymentDatetime, setPaymentDatetime] = useState("");
-  const [paymentAmount, setPaymentAmount] = useState("");
+  const [paymentAmount, setPaymentAmount] = useState("2999");
   const [paymentProofUrl, setPaymentProofUrl] = useState("");
   const [notes, setNotes] = useState("");
   const [systemPrompt, setSystemPrompt] = useState("");
@@ -348,6 +357,49 @@ function LandingPage() {
   const [terminalVisibleCount, setTerminalVisibleCount] = useState(0);
   const [consent, setConsent] = useState(false);
   const [highlightField, setHighlightField] = useState<string | null>(null);
+  const [uploadingSlip, setUploadingSlip] = useState(false);
+
+  const handleSlipChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("กรุณาอัปโหลดไฟล์รูปภาพเท่านั้น");
+      return;
+    }
+
+    setUploadingSlip(true);
+    const toastId = toast.loading("กำลังอัปโหลดสลิป...");
+
+    try {
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
+      const filePath = `${fileName}`;
+
+      const { data, error } = await supabase.storage
+        .from("payment-proofs")
+        .upload(filePath, file, {
+          cacheControl: "3600",
+          upsert: false,
+        });
+
+      if (error) {
+        throw error;
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from("payment-proofs")
+        .getPublicUrl(filePath);
+
+      setPaymentProofUrl(publicUrl);
+      toast.success("อัปโหลดสลิปสำเร็จแล้ว", { id: toastId });
+    } catch (err: any) {
+      console.error("Upload error:", err);
+      toast.error(`อัปโหลดสลิปไม่สำเร็จ: ${err.message || "เกิดข้อผิดพลาด"}`, { id: toastId });
+    } finally {
+      setUploadingSlip(false);
+    }
+  };
 
   // Accessibility states
   const [fontScale, setFontScale] = useState(1.0);
@@ -704,6 +756,8 @@ function LandingPage() {
     const newErrors: Record<string, string> = {};
     if (needsReceipt === null) newErrors.needs_receipt = "กรุณาระบุว่าต้องการใบเสร็จหรือไม่";
     if (!consent) newErrors.consent = "กรุณายอมรับเงื่อนไขการสมัคร";
+    if (!paymentDatetime.trim()) newErrors.payment_datetime = "กรุณาระบุวันเวลาที่โอนเงิน";
+    if (!paymentProofUrl.trim()) newErrors.payment_proof_url = "กรุณาอัปโหลดหลักฐานการโอนเงิน (รูปสลิป)";
     setErrors(newErrors);
     if (Object.keys(newErrors).length > 0) {
       toast.error("กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน");
@@ -728,14 +782,19 @@ function LandingPage() {
       receipt_name: receiptName.trim(),
       receipt_tax_id: receiptTaxId.trim(),
       receipt_address: receiptAddress.trim(),
-      payment_method: "",
-      payment_datetime: "",
-      payment_amount: "",
-      payment_proof_url: "",
+      payment_method: paymentMethod.trim(),
+      payment_datetime: paymentDatetime.trim(),
+      payment_amount: paymentAmount.trim(),
+      payment_proof_url: paymentProofUrl.trim(),
       notes: notes.trim(),
       line_user_id: liffUserId,
       system_prompt: systemPrompt.trim(),
-      source_channel: "LINE_LIFF",
+      source_channel:
+        g === "njv"
+          ? "LINE_LIFF_NUMNAKOM"
+          : g === "premium"
+            ? "LINE_LIFF_PREMIUM"
+            : "LINE_LIFF",
       line_display_name: liffUserId ? fullName.trim() : "",
       consent: true as const,
     };
@@ -744,7 +803,7 @@ function LandingPage() {
         submit({ data }),
         new Promise<void>((resolve) => setTimeout(resolve, TERMINAL_LINES.length * 350 + 600)),
       ]);
-      navigate({ to: "/success", search: { code: res.registration_code } });
+      navigate({ to: "/success", search: { code: res.registration_code, slip: !!paymentProofUrl } });
     } catch (err) {
       console.error(err);
       setShowTerminal(false);
@@ -1885,8 +1944,113 @@ function LandingPage() {
                       </div>
                       <div className="p-2.5 rounded-xl text-xs font-semibold leading-relaxed"
                         style={{ background: "oklch(0.7 0.18 50 / 0.08)", border: "1px solid oklch(0.7 0.18 50 / 0.25)", color: "oklch(0.88 0.06 50)" }}>
-                        💡 หลังกดยืนยัน: โอนเงิน 2,999 บาท แล้วส่งรูปสลิปทาง LINE เจ้าหน้าที่เพื่อปลดล็อก QR Code ตั๋วเข้างาน
+                        💡 โอนเงิน 2,999 บาท เข้าบัญชีด้านบน แล้วแนบหลักฐานด้านล่างเพื่อความรวดเร็วในการยืนยันสิทธิ์!
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Details Input Fields */}
+                  <div className="space-y-4 pt-3 border-t border-border/40">
+                    <h4 className="font-bold text-sm text-foreground/80 flex items-center gap-2">
+                      <CreditCard className="w-4 h-4 text-gold" />
+                      ข้อมูลการชำระเงินมัดจำ
+                    </h4>
+                    
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-xs font-bold mb-1.5 text-muted-foreground">ช่องทางการชำระเงิน</label>
+                        <input
+                          type="text"
+                          value={paymentMethod}
+                          className="w-full px-4 py-2.5 rounded-xl bg-input/40 border border-border/40 text-muted-foreground text-sm cursor-not-allowed outline-none"
+                          disabled
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold mb-1.5 text-muted-foreground">จำนวนเงินโอน (บาท)</label>
+                        <input
+                          type="text"
+                          value={paymentAmount}
+                          className="w-full px-4 py-2.5 rounded-xl bg-input/40 border border-border/40 text-muted-foreground text-sm cursor-not-allowed outline-none"
+                          disabled
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold mb-1.5 text-foreground/80">
+                        วันและเวลาที่โอนเงิน <span className="text-red-400">*</span>
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={paymentDatetime}
+                        onChange={(e) => setPaymentDatetime(e.target.value)}
+                        className={`w-full px-4 py-2.5 rounded-xl bg-input/50 border text-foreground text-sm outline-none transition focus:border-primary focus:ring-2 focus:ring-primary/30 ${
+                          errors.payment_datetime ? "border-red-400" : "border-border/60"
+                        }`}
+                      />
+                      {errors.payment_datetime && (
+                        <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-red-400" />
+                          {errors.payment_datetime}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-bold mb-1.5 text-foreground/80">
+                        หลักฐานการโอนเงิน (สลิปโอนเงิน) <span className="text-red-400">*</span>
+                      </label>
+                      
+                      {paymentProofUrl ? (
+                        <div className="relative rounded-2xl border border-gold/20 overflow-hidden bg-gold/5 p-4 flex flex-col items-center">
+                          <img
+                            src={paymentProofUrl}
+                            alt="Payment Slip Proof"
+                            className="max-h-64 object-contain rounded-lg border border-border shadow-md"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setPaymentProofUrl("")}
+                            className="mt-3 px-4 py-1.5 rounded-xl bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold hover:bg-red-500/30 transition-colors"
+                          >
+                            ลบรูปภาพและอัปโหลดใหม่
+                          </button>
+                        </div>
+                      ) : (
+                        <div className={`relative border-2 border-dashed rounded-2xl p-6 text-center cursor-pointer transition-all duration-300 ${
+                          errors.payment_proof_url ? "border-red-400 bg-red-500/5" : "border-border/60 bg-input/30 hover:border-gold/50"
+                        }`}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleSlipChange}
+                            disabled={uploadingSlip}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                          />
+                          <div className="flex flex-col items-center justify-center gap-2">
+                            {uploadingSlip ? (
+                              <>
+                                <div className="w-8 h-8 border-2 border-gold/30 border-t-gold rounded-full animate-spin" />
+                                <p className="text-xs font-bold text-gold">กำลังอัปโหลดรูปภาพ...</p>
+                              </>
+                            ) : (
+                              <>
+                                <UploadCloud className="w-8 h-8 text-gold" style={{ animation: "bounce-y 2s infinite" }} />
+                                <p className="text-sm font-bold text-foreground">คลิกหรือลากไฟล์ภาพสลิปเพื่ออัปโหลด</p>
+                                <p className="text-[10px] text-muted-foreground">รองรับไฟล์รูปภาพ PNG, JPG, JPEG เท่านั้น</p>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      
+                      {errors.payment_proof_url && (
+                        <p className="text-xs text-red-400 mt-1 flex items-center gap-1">
+                          <span className="w-1 h-1 rounded-full bg-red-400" />
+                          {errors.payment_proof_url}
+                        </p>
+                      )}
                     </div>
                   </div>
 
@@ -1995,6 +2159,55 @@ function LandingPage() {
               </div>
 
             </form>
+          </RevealSection>
+        </div>
+      </section>
+
+      {/* ── SPONSORS & PARTNERS ───────────────────────────── */}
+      <section className="py-16 relative overflow-hidden bg-secondary/20 border-t border-border/30">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 text-center">
+          <RevealSection>
+            <p className="text-gold font-bold text-xs uppercase tracking-[0.2em] mb-2">
+              Partners & Sponsors
+            </p>
+            <h2 className="text-2xl font-black mb-10">
+              ผู้ร่วมจัดงานและผู้สนับสนุน
+            </h2>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center justify-center max-w-4xl mx-auto">
+              {/* Organized by */}
+              <div className="glass-card rounded-2xl p-6 border-white/5 bg-white/[0.02] flex flex-col items-center justify-center min-h-[160px]">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">จัดโดย</p>
+                <div className="flex flex-col items-center gap-2">
+                  <span className="text-lg font-black bg-gold-gradient bg-clip-text text-transparent">สะออนทัวร์ (SA-ON Tour)</span>
+                  <span className="text-[10px] text-muted-foreground">เวิร์กช็อปความรู้คู่ความสนุกเพื่อชุมชนและผู้ประกอบการ</span>
+                </div>
+              </div>
+
+              {/* Co-organized by (Logo Smart Expo) */}
+              <div className="glass-card rounded-2xl p-6 border-white/5 bg-white/[0.02] flex flex-col items-center justify-center min-h-[160px]">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">ร่วมจัดโดย</p>
+                <img
+                  src="/logo-smart-expo.png"
+                  alt="Smart Business Expo 2026"
+                  className="h-12 object-contain opacity-95 hover:opacity-100 transition-opacity duration-300"
+                />
+                <span className="text-[10px] text-muted-foreground mt-2">Smart Business Expo 2026</span>
+              </div>
+
+              {/* Supported by (Logo NESBIA) */}
+              <div className="glass-card rounded-2xl p-6 border-white/5 bg-white/[0.02] flex flex-col items-center justify-center min-h-[160px]">
+                <p className="text-xs font-bold text-muted-foreground uppercase tracking-wider mb-4">สนับสนุนกิจกรรมโดย</p>
+                <img
+                  src="/logo-nesbia.png"
+                  alt="NESBIA"
+                  className="h-14 object-contain rounded-lg border border-white/10 shadow-md opacity-90 hover:opacity-100 transition-opacity duration-300"
+                />
+                <span className="text-[10px] text-muted-foreground mt-2 font-bold text-center leading-tight">
+                  สมาคมการค้าซอฟต์แวร์<br />และธุรกิจนวัตกรรมภาคตะวันออกเฉียงเหนือ
+                </span>
+              </div>
+            </div>
           </RevealSection>
         </div>
       </section>
