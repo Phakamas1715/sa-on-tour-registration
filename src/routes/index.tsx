@@ -1009,6 +1009,31 @@ function LandingPage() {
       {/* ── DIVIDER ───────────────────────────────────────── */}
       <div className="neon-line opacity-40" />
 
+      {/* ── URGENCY BANNER ────────────────────────────────── */}
+      <section className="py-6 relative overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="glass-card rounded-2xl p-5 sm:p-6 border-red-500/30 bg-red-500/5 flex flex-col sm:flex-row items-center justify-between gap-4 animate-pulse-soft">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 grid place-items-center shrink-0">
+                <Zap className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <p className="text-sm sm:text-base font-extrabold text-red-400">🚨 ด่วน! รับจำนวนจำกัด</p>
+                <p className="text-xs text-muted-foreground">
+                  ลงทะเบียนภายใน <span className="text-gold font-bold">27 มิถุนายน 2569</span> รับ Gift Voucher เรียนฟรี <span className="text-gold font-bold">3,000 บาท</span> ที่จุดลงทะเบียนงาน Smart Business Expo
+                </p>
+              </div>
+            </div>
+            <a
+              href="#register"
+              className="btn-gradient px-6 py-3 rounded-full text-sm font-extrabold whitespace-nowrap shrink-0"
+            >
+              สแกนลงทะเบียนเลย →
+            </a>
+          </div>
+        </div>
+      </section>
+
       {/* ── EVENT DETAILS ─────────────────────────────────── */}
       <section id="details" className="py-24 relative overflow-hidden">
         {/* Section Background Image Overlay */}
