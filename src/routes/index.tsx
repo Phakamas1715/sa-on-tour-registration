@@ -897,10 +897,19 @@ function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left — text */}
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-8">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold ping-gold" />
-                <span className="text-gold">เปิดรับลงทะเบียน</span>
-                <span className="text-muted-foreground">• ในงาน Smart Business Expo 2026</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 ping-gold" />
+                <span className="text-red-400">ด่วน! รับจำนวนจำกัด</span>
+                <span className="text-muted-foreground">• ภายในงาน Smart Business Expo 2026</span>
+              </div>
+
+              {/* Smart Business Expo Logo */}
+              <div className="mb-6">
+                <img
+                  src="/logo-smart-expo.png"
+                  alt="Smart Business Expo 2026"
+                  className="h-12 sm:h-14 w-auto object-contain"
+                />
               </div>
 
               <h1
