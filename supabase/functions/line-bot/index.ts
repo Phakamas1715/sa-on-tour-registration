@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { verifyLineSignature } from "../_shared/security.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -61,6 +62,11 @@ serve(async (req) => {
     const events = payload.events || [];
     console.log(`Received ${events.length} LINE events`);
 
+    const supabase = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+
     for (const event of events) {
       if (event.type === "message" && event.message.type === "text") {
         const replyToken = event.replyToken;
@@ -69,8 +75,36 @@ serve(async (req) => {
 
         console.log(`User ${userId} sent: ${userText}`);
 
-        // Get AI response
-        const aiResponse = await getAiReply(userText, apiKey, isZAi);
+        // Check if user is registered in the database
+        const { data: registration, error: dbError } = await supabase
+          .from("registrations")
+          .select("id, full_name, registration_code")
+          .eq("line_user_id", userId)
+          .maybeSingle();
+
+        if (dbError) {
+          console.error("Database query error:", dbError);
+        }
+
+        if (!registration) {
+          // Reply with a polite message and LIFF registration link
+          const pleaseRegisterMsg = `ขออภัยค่ะ บอทผู้ช่วยอัจฉริยะนี้จัดทำขึ้นเป็นพิเศษสำหรับผู้ลงทะเบียนเข้าร่วมงานสัมมนา 'สะออนทัวร์ Workshop' เท่านั้นค่ะ 🤖
+
+กรุณาลงทะเบียนจองสิทธิ์ผ่านลิงก์ LINE LIFF ด้านล่างนี้เพื่อเริ่มต้นใช้งาน AI Agent ของคุณนะคะ:
+👉 https://liff.line.me/2010458070-beALbiun`;
+
+          await replyToLine(replyToken, pleaseRegisterMsg, LINE_CHANNEL_ACCESS_TOKEN);
+          continue;
+        }
+
+        // Get AI response (personalized with registrant's name)
+        const aiResponse = await getAiReply(
+          userText,
+          apiKey,
+          isZAi,
+          registration.full_name,
+          registration.registration_code,
+        );
 
         // Send reply message to LINE
         await replyToLine(replyToken, aiResponse, LINE_CHANNEL_ACCESS_TOKEN);
@@ -229,8 +263,18 @@ serve(async (req) => {
   }
 });
 
-async function getAiReply(userMessage: string, apiKey: string, isZAi: boolean): Promise<string> {
+async function getAiReply(
+  userMessage: string,
+  apiKey: string,
+  isZAi: boolean,
+  userName: string,
+  regCode: string,
+): Promise<string> {
   const systemPrompt = `คุณเป็น AI Agent ผู้ช่วยลูกค้าอัจฉริยะของบริษัท Regent Holiday
+  ข้อมูลลูกค้าปัจจุบันที่คุณกำลังสนทนาด้วย:
+  - ชื่อ: ${userName}
+  - รหัสลงทะเบียน: ${regCode}
+
   หน้าที่ของคุณคือ:
   1. แนะนำแพ็คเกจทัวร์ต่างประเทศ เช่น ญี่ปุ่น จีน เกาหลี ฮ่องกง ยุโรป และอื่นๆ
   2. ให้ข้อมูลสัมมนา "สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น" ในงาน Smart Business Expo 2026
