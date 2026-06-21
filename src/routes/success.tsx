@@ -20,7 +20,7 @@ export const Route = createFileRoute("/success")({
   component: SuccessPage,
 });
 
-const LINE_OA_URL = "https://line.me/R/ti/p/@saontour";
+const LINE_OA_URL = "https://line.me/R/ti/p/@noomnugaom";
 
 function SuccessPage() {
   const { code, slip, g, source, ref } = Route.useSearch();
