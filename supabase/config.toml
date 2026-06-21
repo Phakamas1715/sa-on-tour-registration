@@ -1,1 +1,19 @@
 project_id = "avahcpkndgsiveueqlcp"
+
+[functions.payment-agent]
+verify_jwt = true
+
+[functions.register-external]
+verify_jwt = false
+
+[functions.send-line-message]
+verify_jwt = true
+
+[functions.line-bot]
+verify_jwt = false
+
+[functions.generate-tour]
+verify_jwt = true
+
+[functions.notify-discord]
+verify_jwt = true

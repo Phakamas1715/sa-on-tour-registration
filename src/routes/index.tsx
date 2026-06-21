@@ -37,7 +37,6 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { createRegistration } from "@/lib/registrations.functions";
-import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -732,20 +731,6 @@ function LandingPage() {
         submit({ data }),
         new Promise<void>((resolve) => setTimeout(resolve, TERMINAL_LINES.length * 350 + 600)),
       ]);
-      if (liffUserId) {
-        supabase.functions.invoke("send-line-message", {
-          body: {
-            to: liffUserId,
-            type: "registration_success",
-            data: {
-              registration_code: res.registration_code,
-              full_name: fullName.trim(),
-              final_price: 2999,
-            },
-            app_origin: window.location.origin,
-          },
-        }).catch((err) => console.warn("[LINE push]", err));
-      }
       navigate({ to: "/success", search: { code: res.registration_code } });
     } catch (err) {
       console.error(err);

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { requireServiceRole } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -10,7 +11,6 @@ type MessageRequest = {
   to: string;
   type: "registration_success" | "payment_confirmed";
   data?: Record<string, unknown>;
-  app_origin?: string;
 };
 
 function text(value: unknown, fallback = "") {
@@ -22,19 +22,9 @@ function money(value: unknown) {
   return amount.toLocaleString("th-TH", { maximumFractionDigits: 0 });
 }
 
-function originFrom(req: Request, body: MessageRequest) {
-  if (body.app_origin) return body.app_origin.replace(/\/$/, "");
+function appOrigin() {
   const envOrigin = Deno.env.get("APP_ORIGIN") || Deno.env.get("LOVABLE_APP_URL");
   if (envOrigin) return envOrigin.replace(/\/$/, "");
-
-  const referer = req.headers.get("referer");
-  if (referer) {
-    try {
-      return new URL(referer).origin;
-    } catch {
-      // Fall through to production default.
-    }
-  }
   return "https://bookingworkshop-agent.lovable.app";
 }
 
@@ -42,14 +32,13 @@ function buildQrUrl(checkinUrl: string) {
   return `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(checkinUrl)}`;
 }
 
-function registrationSuccessMessage(req: Request, body: MessageRequest) {
+function registrationSuccessMessage(body: MessageRequest) {
   const data = body.data ?? {};
   const registrationCode = text(data.registration_code, "SAON-KK-XXXX");
   const fullName = text(data.full_name, "ผู้ลงทะเบียน");
   const couponToken = text(data.coupon_token);
   const finalPrice = money(data.final_price || 2999);
-  const appOrigin = originFrom(req, body);
-  const successUrl = `${appOrigin}/success?code=${encodeURIComponent(registrationCode)}${
+  const successUrl = `${appOrigin()}/success?code=${encodeURIComponent(registrationCode)}${
     couponToken ? `&token=${encodeURIComponent(couponToken)}` : ""
   }`;
 
@@ -130,14 +119,13 @@ function registrationSuccessMessage(req: Request, body: MessageRequest) {
   };
 }
 
-function paymentConfirmedMessage(req: Request, body: MessageRequest) {
+function paymentConfirmedMessage(body: MessageRequest) {
   const data = body.data ?? {};
   const registrationCode = text(data.registration_code, "SAON-KK-XXXX");
   const fullName = text(data.full_name, "ผู้ลงทะเบียน");
   const couponToken = text(data.coupon_token);
   const amount = money(data.amount || 2999);
-  const appOrigin = originFrom(req, body);
-  const checkinUrl = `${appOrigin}/checkin?code=${encodeURIComponent(registrationCode)}${
+  const checkinUrl = `${appOrigin()}/checkin?code=${encodeURIComponent(registrationCode)}${
     couponToken ? `&token=${encodeURIComponent(couponToken)}` : ""
   }`;
 
@@ -221,6 +209,9 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  const authError = requireServiceRole(req, corsHeaders);
+  if (authError) return authError;
+
   try {
     const lineToken = Deno.env.get("LINE_CHANNEL_ACCESS_TOKEN");
     if (!lineToken) {
@@ -233,8 +224,8 @@ serve(async (req) => {
 
     const message =
       body.type === "registration_success"
-        ? registrationSuccessMessage(req, body)
-        : paymentConfirmedMessage(req, body);
+        ? registrationSuccessMessage(body)
+        : paymentConfirmedMessage(body);
 
     const response = await fetch("https://api.line.me/v2/bot/message/push", {
       method: "POST",

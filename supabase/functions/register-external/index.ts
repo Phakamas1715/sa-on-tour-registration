@@ -7,6 +7,7 @@
  */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serverMisconfigured, unauthorized } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -23,14 +24,13 @@ serve(async (req) => {
   try {
     // ── API key guard ───────────────────────────────────────────────────────
     const expectedKey = Deno.env.get("EXTERNAL_API_KEY");
-    if (expectedKey) {
-      const providedKey = req.headers.get("x-api-key");
-      if (providedKey !== expectedKey) {
-        return new Response(JSON.stringify({ error: "Unauthorized" }), {
-          status: 401,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
+    if (!expectedKey) {
+      return serverMisconfigured("EXTERNAL_API_KEY is not configured", corsHeaders);
+    }
+
+    const providedKey = req.headers.get("x-api-key");
+    if (providedKey !== expectedKey) {
+      return unauthorized(corsHeaders);
     }
 
     // ── Parse body ──────────────────────────────────────────────────────────

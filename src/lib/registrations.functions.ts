@@ -73,6 +73,24 @@ export const createRegistration = createServerFn({ method: "POST" })
       .select("registration_code")
       .single();
     if (error) throw new Error(error.message);
+    if (data.line_user_id) {
+      try {
+        const { error: lineError } = await supabaseAdmin.functions.invoke("send-line-message", {
+          body: {
+            to: data.line_user_id,
+            type: "registration_success",
+            data: {
+              registration_code: row.registration_code,
+              full_name: data.full_name,
+              final_price: 2999,
+            },
+          },
+        });
+        if (lineError) console.warn("[createRegistration] LINE push failed:", lineError.message);
+      } catch (lineError) {
+        console.warn("[createRegistration] LINE push failed:", lineError);
+      }
+    }
     return { registration_code: row.registration_code };
   });
 

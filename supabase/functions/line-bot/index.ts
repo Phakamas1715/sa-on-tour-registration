@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { verifyLineSignature } from "../_shared/security.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -22,6 +23,10 @@ serve(async (req) => {
       throw new Error("LINE_CHANNEL_ACCESS_TOKEN is not configured in Supabase secrets");
     }
 
+    if (!Deno.env.get("LINE_CHANNEL_SECRET")) {
+      throw new Error("LINE_CHANNEL_SECRET is not configured in Supabase secrets");
+    }
+
     let apiKey = Z_AI_API_KEY;
     let isZAi = true;
 
@@ -35,6 +40,17 @@ serve(async (req) => {
     }
 
     const bodyText = await req.text();
+    const isValidLineRequest = await verifyLineSignature(
+      bodyText,
+      req.headers.get("x-line-signature"),
+    );
+    if (!isValidLineRequest) {
+      return new Response(JSON.stringify({ error: "Invalid LINE signature" }), {
+        status: 401,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     let payload;
     try {
       payload = JSON.parse(bodyText);
