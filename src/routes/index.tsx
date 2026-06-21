@@ -1488,7 +1488,7 @@ function LandingPage() {
                       color: "text-line",
                     },
                     { icon: Zap, text: "รับที่จุดลงทะเบียนงาน Smart Business Expo", color: "text-gold" },
-                    { icon: Bot, text: "ลงทะเบียนด่วนภายใน 27 มิ.ย. 69", color: "text-primary" },
+                    { icon: Calendar, text: "ลงทะเบียนด่วน! ภายใน 27 มิ.ย. 69", color: "text-red-400" },
                   ].map((p) => (
                     <div
                       key={p.text}
