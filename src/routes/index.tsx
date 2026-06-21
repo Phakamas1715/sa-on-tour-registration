@@ -979,10 +979,19 @@ function LandingPage() {
           <div className="grid lg:grid-cols-2 gap-16 items-center">
             {/* Left — text */}
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-8">
-                <span className="w-1.5 h-1.5 rounded-full bg-gold ping-gold" />
-                <span className="text-gold">เปิดรับลงทะเบียน</span>
-                <span className="text-muted-foreground">• ในงาน Smart Business Expo 2026</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-6">
+                <span className="w-1.5 h-1.5 rounded-full bg-red-500 ping-gold" />
+                <span className="text-red-400">ด่วน! รับจำนวนจำกัด</span>
+                <span className="text-muted-foreground">• ภายในงาน Smart Business Expo 2026</span>
+              </div>
+
+              {/* Smart Business Expo Logo */}
+              <div className="mb-6">
+                <img
+                  src="/logo-smart-expo.png"
+                  alt="Smart Business Expo 2026"
+                  className="h-12 sm:h-14 w-auto object-contain"
+                />
               </div>
 
               <h1
@@ -1003,13 +1012,15 @@ function LandingPage() {
               <div className="neon-line w-24 my-6" />
 
               <p className="text-lg sm:text-xl font-semibold">
-                Upskill <span className="text-line font-extrabold">LINE OA</span>
-                {" & "}
-                <span className="text-tiktok font-extrabold">TikTok</span> ด้วยพลัง AI
+                มาอัปสกิลแบบ<span className="text-gold font-extrabold">ลงมือทำจริง</span>
               </p>
               <p className="mt-3 text-muted-foreground text-base max-w-md leading-relaxed">
-                เรียนสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ให้ใช้งานได้จริงในธุรกิจและงานประจำ ลงมือทำจริง
+                เรียนรู้การสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ให้ใช้งานได้จริงในธุรกิจและงานประจำ
               </p>
+              <div className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm font-bold">
+                <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                ลงทะเบียนภายใน 27 มิ.ย. 69 รับ Gift Voucher เรียนฟรี 3,000 บาท!
+              </div>
 
               <div className="mt-8 flex flex-wrap gap-3">
                 <a
@@ -1079,6 +1090,31 @@ function LandingPage() {
 
       {/* ── DIVIDER ───────────────────────────────────────── */}
       <div className="neon-line opacity-40" />
+
+      {/* ── URGENCY BANNER ────────────────────────────────── */}
+      <section className="py-6 relative overflow-hidden">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6">
+          <div className="glass-card rounded-2xl p-5 sm:p-6 border-red-500/30 bg-red-500/5 flex flex-col sm:flex-row items-center justify-between gap-4 animate-pulse-soft">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 grid place-items-center shrink-0">
+                <Zap className="w-5 h-5 text-red-400" />
+              </div>
+              <div>
+                <p className="text-sm sm:text-base font-extrabold text-red-400">🚨 ด่วน! รับจำนวนจำกัด</p>
+                <p className="text-xs text-muted-foreground">
+                  ลงทะเบียนภายใน <span className="text-gold font-bold">27 มิถุนายน 2569</span> รับ Gift Voucher เรียนฟรี <span className="text-gold font-bold">3,000 บาท</span> ที่จุดลงทะเบียนงาน Smart Business Expo
+                </p>
+              </div>
+            </div>
+            <a
+              href="#register"
+              className="btn-gradient px-6 py-3 rounded-full text-sm font-extrabold whitespace-nowrap shrink-0"
+            >
+              สแกนลงทะเบียนเลย →
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* ── EVENT DETAILS ─────────────────────────────────── */}
       <section id="details" className="py-24 relative overflow-hidden">
@@ -1534,7 +1570,7 @@ function LandingPage() {
                       color: "text-line",
                     },
                     { icon: Zap, text: "รับที่จุดลงทะเบียนงาน Smart Business Expo", color: "text-gold" },
-                    { icon: Bot, text: "ลงทะเบียนด่วนภายใน 27 มิ.ย. 69", color: "text-primary" },
+                    { icon: Calendar, text: "ลงทะเบียนด่วน! ภายใน 27 มิ.ย. 69", color: "text-red-400" },
                   ].map((p) => (
                     <div
                       key={p.text}

@@ -6,8 +6,7 @@ import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/success")({
-  validateSearch: (s: Record<string, unknown>) =>
-    z.object({ code: z.string().optional() }).parse(s),
+  validateSearch: (s: Record<string, unknown>) => z.object({ code: z.string().optional() }).parse(s),
   head: () => ({
     meta: [{ title: "จองสิทธิ์สำเร็จ – สะออนทัวร์ Workshop" }],
   }),
@@ -32,7 +31,7 @@ function SuccessPage() {
   return (
     <div className="min-h-screen bg-hero isan-pattern relative overflow-hidden">
       <link
-        href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Prompt:wght@400;600;700;800;900&display=swap"
         rel="stylesheet"
       />
       <Toaster richColors position="top-center" />
