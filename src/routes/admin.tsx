@@ -408,9 +408,7 @@ function AdminDashboard() {
                         {r.province ?? "-"} {r.district ? `/ ${r.district}` : ""}
                       </td>
                       <td className="px-4 py-3 text-muted-foreground">{r.occupation ?? "-"}</td>
-                      <td className="px-4 py-3 text-muted-foreground">
-                        {r.interest_topic ?? "-"}
-                      </td>
+                      <td className="px-4 py-3 text-muted-foreground">{r.interest_topic ?? "-"}</td>
                       <td className="px-4 py-3 text-xs text-muted-foreground">
                         {new Date(r.created_at).toLocaleString("th-TH")}
                       </td>

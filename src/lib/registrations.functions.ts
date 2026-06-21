@@ -19,6 +19,15 @@ const registrationSchema = z.object({
 export const createRegistration = createServerFn({ method: "POST" })
   .inputValidator((data: unknown) => registrationSchema.parse(data))
   .handler(async ({ data }) => {
+    // Graceful fallback for local development when service role key is not configured
+    if (!process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      console.warn(
+        "[createRegistration] SUPABASE_SERVICE_ROLE_KEY is missing. Falling back to Mock Registration Mode for local development.",
+      );
+      const mockCode = `SAON-KK-MOCK-${Math.floor(1000 + Math.random() * 9000)}`;
+      return { registration_code: mockCode };
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const payload = {
       ...data,
