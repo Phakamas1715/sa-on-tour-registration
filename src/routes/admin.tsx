@@ -180,7 +180,7 @@ function AuthPanel() {
           </div>
         </div>
         <h1 className="text-2xl font-extrabold text-center">Admin Panel</h1>
-        <p className="text-center text-sm text-muted-foreground mt-1">
+        <p className="text-center text-sm text-slate-300 mt-1">
           {mode === "signin" ? "เข้าสู่ระบบเพื่อจัดการ" : "สมัครบัญชี Admin"}
         </p>
 
@@ -214,7 +214,7 @@ function AuthPanel() {
         <button
           type="button"
           onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-          className="w-full mt-3 text-sm text-muted-foreground hover:text-gold"
+          className="w-full mt-3 text-sm text-slate-300 hover:text-gold"
         >
           {mode === "signin" ? "ยังไม่มีบัญชี? สมัครที่นี่" : "มีบัญชีแล้ว? เข้าสู่ระบบ"}
         </button>
@@ -334,13 +334,13 @@ function AdminDashboard() {
           <div className="flex items-center gap-2">
             <Shield className="w-5 h-5 text-gold" />
             <h1 className="font-bold">Admin Panel</h1>
-            <span className="text-xs text-muted-foreground ml-2">
+            <span className="text-xs text-slate-300 ml-2">
               {filtered.length} / {rows.length} รายการ
             </span>
           </div>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1"
+            className="text-sm text-slate-300 hover:text-white flex items-center gap-1"
           >
             <LogOut className="w-4 h-4" /> ออกจากระบบ
           </button>
@@ -350,7 +350,7 @@ function AdminDashboard() {
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8">
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-[240px]">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <input
               placeholder="ค้นหาชื่อ / เบอร์ / รหัส"
               value={q}
@@ -406,13 +406,13 @@ function AdminDashboard() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-10 text-muted-foreground">
+                    <td colSpan={10} className="text-center py-10 text-slate-300">
                       <Loader2 className="w-5 h-5 animate-spin inline" />
                     </td>
                   </tr>
                 ) : filtered.length === 0 ? (
                   <tr>
-                    <td colSpan={9} className="text-center py-10 text-muted-foreground">
+                    <td colSpan={10} className="text-center py-10 text-slate-300">
                       ยังไม่มีรายการ
                     </td>
                   </tr>
@@ -436,12 +436,12 @@ function AdminDashboard() {
                       <td className="px-4 py-3 font-semibold">{r.full_name}</td>
                       <td className="px-4 py-3">{r.phone}</td>
                       <td className="px-4 py-3">{r.line_id}</td>
-                      <td className="px-4 py-3 text-muted-foreground">
+                      <td className="px-4 py-3 text-slate-300">
                         {r.province ?? "-"} {r.district ? `/ ${r.district}` : ""}
                       </td>
-                      <td className="px-4 py-3 text-muted-foreground">{r.occupation ?? "-"}</td>
-                      <td className="px-4 py-3 text-muted-foreground">{r.interest_topic ?? "-"}</td>
-                      <td className="px-4 py-3 text-xs text-muted-foreground">
+                      <td className="px-4 py-3 text-slate-300">{r.occupation ?? "-"}</td>
+                      <td className="px-4 py-3 text-slate-300">{r.interest_topic ?? "-"}</td>
+                      <td className="px-4 py-3 text-xs text-slate-300">
                         {new Date(r.created_at).toLocaleString("th-TH")}
                       </td>
                       <td className="px-4 py-3">

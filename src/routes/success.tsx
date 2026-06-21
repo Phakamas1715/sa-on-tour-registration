@@ -83,7 +83,7 @@ function SuccessPage() {
                     : <Copy className="w-4 h-4 text-gold" />}
                 </button>
               </div>
-              <p className="text-[10px] text-muted-foreground flex items-center justify-center gap-1 mt-1">
+              <p className="text-[10px] text-slate-300 flex items-center justify-center gap-1 mt-1">
                 <Sparkles className="w-3 h-3" /> บันทึกรหัสนี้ไว้อ้างอิงกับทีมงาน
               </p>
             </div>
@@ -91,7 +91,7 @@ function SuccessPage() {
 
           {/* ── Locked QR placeholder ── */}
           <div className="glass-card rounded-3xl p-6 text-center space-y-3">
-            <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+            <p className="text-xs font-bold text-slate-300 uppercase tracking-widest">
               คูปอง QR Code เข้างาน
             </p>
             <div className="relative mx-auto w-36 h-36">
@@ -117,7 +117,7 @@ function SuccessPage() {
                 </span>
               </div>
             </div>
-            <p className="text-xs text-muted-foreground leading-relaxed px-2">
+            <p className="text-xs text-slate-300 leading-relaxed px-2">
               QR Code จะ<span className="font-bold text-gold">ปลดล็อกอัตโนมัติ</span>หลังเจ้าหน้าที่ตรวจสอบสลิปมัดจำเรียบร้อยแล้ว
             </p>
           </div>
@@ -130,7 +130,7 @@ function SuccessPage() {
             >
               <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-0.5">ยอดมัดจำ</p>
               <p className="text-4xl font-black text-gold">2,999</p>
-              <p className="text-xs text-muted-foreground">บาท</p>
+              <p className="text-xs text-slate-400">บาท</p>
             </div>
             <div className="p-5 space-y-3">
               <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: "oklch(0.22 0.05 262 / 0.8)" }}>
@@ -138,9 +138,9 @@ function SuccessPage() {
                   <span className="font-black text-green-400 text-sm">K</span>
                 </div>
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">ธนาคารกสิกรไทย</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">ธนาคารกสิกรไทย</p>
                   <p className="font-extrabold text-gold text-lg leading-tight">405-3-05346-3</p>
-                  <p className="text-xs text-muted-foreground">อัจฉรีญา โถนารัตน์</p>
+                  <p className="text-xs text-slate-200">อัจฉรีญา โถนารัตน์</p>
                 </div>
               </div>
               <div

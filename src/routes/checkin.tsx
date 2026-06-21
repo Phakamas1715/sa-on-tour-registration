@@ -128,10 +128,10 @@ function CheckinPage() {
         <div className="max-w-sm text-center p-8 rounded-2xl bg-card border border-border shadow-card-soft">
           <Shield className="w-10 h-10 text-gold mx-auto mb-3" />
           <h1 className="text-xl font-bold">ไม่มีสิทธิ์เข้าถึง</h1>
-          <p className="mt-2 text-muted-foreground text-sm">บัญชีนี้ไม่ใช่ Admin</p>
+          <p className="mt-2 text-slate-300 text-sm">บัญชีนี้ไม่ใช่ Admin</p>
           <button
             onClick={() => supabase.auth.signOut()}
-            className="mt-4 text-sm text-muted-foreground hover:text-foreground"
+            className="mt-4 text-sm text-slate-300 hover:text-white"
           >
             ออกจากระบบ
           </button>
@@ -173,7 +173,7 @@ function AuthPanel() {
           </div>
         </div>
         <h1 className="text-2xl font-extrabold text-center">Admin Check-in</h1>
-        <p className="text-center text-sm text-muted-foreground mt-1">เข้าสู่ระบบเพื่อสแกนเช็คอิน</p>
+        <p className="text-center text-sm text-slate-300 mt-1">เข้าสู่ระบบเพื่อสแกนเช็คอิน</p>
         <div className="space-y-3 mt-6">
           <input
             type="email" required placeholder="อีเมล Admin" value={email}
@@ -281,12 +281,12 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
             <h1 className="font-bold text-sm">Admin Check-in</h1>
           </div>
           <div className="flex items-center gap-3">
-            <Link to="/admin" className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1">
+            <Link to="/admin" className="text-xs text-slate-300 hover:text-white flex items-center gap-1">
               <ArrowLeft className="w-3 h-3" /> Dashboard
             </Link>
             <button
               onClick={() => supabase.auth.signOut()}
-              className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+              className="text-xs text-slate-300 hover:text-white flex items-center gap-1"
             >
               <LogOut className="w-3 h-3" />
             </button>
@@ -298,10 +298,10 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
 
         {/* Search */}
         <div className="glass-card rounded-2xl p-5 space-y-3">
-          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">ค้นหารหัสลงทะเบียน</p>
+          <p className="text-xs font-bold uppercase tracking-widest text-slate-300">ค้นหารหัสลงทะเบียน</p>
           <div className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <input
                 value={searchCode}
                 onChange={(e) => setSearchCode(e.target.value.toUpperCase())}
@@ -328,7 +328,7 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
 
         {/* Not found */}
         {notFound && (
-          <div className="text-center py-10 text-muted-foreground">
+          <div className="text-center py-10 text-slate-300">
             <Search className="w-10 h-10 mx-auto mb-3 opacity-40" />
             <p className="font-semibold">ไม่พบรหัสลงทะเบียน</p>
             <p className="text-xs mt-1">"{searchCode}" ไม่มีในระบบ</p>
@@ -343,7 +343,7 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
             <div className="glass-card rounded-2xl p-5 space-y-4">
               <div className="flex items-start justify-between flex-wrap gap-3">
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">รหัสลงทะเบียน</p>
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-1">รหัสลงทะเบียน</p>
                   <p className="text-xl font-extrabold text-gold font-mono">{reg.registration_code}</p>
                 </div>
                 {statusInfo && (
@@ -352,7 +352,7 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
                   </span>
                 )}
               </div>
-
+ 
               {/* Personal info */}
               <div className="grid sm:grid-cols-2 gap-3 text-sm">
                 <InfoRow icon={User} label="ชื่อ" value={reg.full_name} />
@@ -361,13 +361,13 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
                 <InfoRow icon={MapPin} label="จังหวัด" value={[reg.province, reg.district].filter(Boolean).join(" / ") || "-"} />
                 {reg.occupation && <InfoRow icon={Briefcase} label="อาชีพ" value={reg.occupation} />}
               </div>
-
+ 
               {/* AI interests */}
               {reg.interest_topic && (
                 <div className="pt-3 border-t border-border/40">
                   <div className="flex items-center gap-2 mb-2">
-                    <Bot className="w-3.5 h-3.5 text-gold" />
-                    <p className="text-xs font-bold text-muted-foreground uppercase">ความสนใจ AI</p>
+                     <Bot className="w-3.5 h-3.5 text-gold" />
+                    <p className="text-xs font-bold text-slate-300 uppercase">ความสนใจ AI</p>
                   </div>
                   <div className="flex flex-wrap gap-1.5">
                     {reg.interest_topic.split(", ").map((t) => (
@@ -376,12 +376,12 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
                   </div>
                 </div>
               )}
-
+ 
               {/* System prompt */}
               {reg.system_prompt && (
                 <div className="pt-3 border-t border-border/40">
-                  <p className="text-xs font-bold text-muted-foreground uppercase mb-1">System Prompt</p>
-                  <p className="text-xs text-muted-foreground bg-input/50 rounded-xl px-3 py-2 font-mono leading-relaxed line-clamp-4">
+                  <p className="text-xs font-bold text-slate-300 uppercase mb-1">System Prompt</p>
+                  <p className="text-xs text-slate-300 bg-input/50 rounded-xl px-3 py-2 font-mono leading-relaxed line-clamp-4">
                     {reg.system_prompt}
                   </p>
                 </div>
@@ -408,11 +408,11 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
                       {coupon.status === "active" && <span className="text-green-400">ปลดล็อกแล้ว — พร้อมใช้</span>}
                       {coupon.status === "used" && <span className="text-muted-foreground">ใช้แล้ว</span>}
                     </p>
-                    <p className="text-xs text-muted-foreground font-mono mt-0.5">{coupon.token.slice(0, 8)}…</p>
+                    <p className="text-xs text-slate-300 font-mono mt-0.5">{coupon.token.slice(0, 8)}…</p>
                   </div>
                 </div>
               ) : (
-                <p className="text-xs text-muted-foreground">ยังไม่มีคูปอง</p>
+                <p className="text-xs text-slate-300">ยังไม่มีคูปอง</p>
               )}
             </div>
 
@@ -466,9 +466,9 @@ function CheckinDashboard({ initialCode, qrToken }: { initialCode?: string; qrTo
 function InfoRow({ icon: Icon, label, value }: { icon: React.ComponentType<{ className?: string }>; label: string; value: string }) {
   return (
     <div className="flex items-start gap-2">
-      <Icon className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+      <Icon className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
       <div className="min-w-0">
-        <p className="text-[10px] text-muted-foreground">{label}</p>
+        <p className="text-[10px] text-slate-300">{label}</p>
         <p className="font-semibold text-sm truncate">{value}</p>
       </div>
     </div>

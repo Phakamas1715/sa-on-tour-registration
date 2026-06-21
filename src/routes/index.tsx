@@ -1039,7 +1039,7 @@ function LandingPage() {
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full glass-card text-xs font-bold mb-6">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-500 ping-gold" />
                 <span className="text-red-400">เปิดรับสมัครอย่างเป็นทางการ</span>
-                <span className="text-muted-foreground">• Smart Business Expo 2026</span>
+                <span className="text-slate-300">• Smart Business Expo 2026</span>
               </div>
 
               {/* Smart Business Expo Logo */}
@@ -1071,7 +1071,7 @@ function LandingPage() {
               <p className="text-lg sm:text-xl font-semibold">
                 มาอัปสกิลแบบ<span className="text-gold font-extrabold">ลงมือทำจริง</span>
               </p>
-              <p className="mt-3 text-muted-foreground text-base max-w-md leading-relaxed">
+              <p className="mt-3 text-slate-300 text-base max-w-md leading-relaxed">
                 เรียนรู้การสร้าง AI Agent เชื่อม LINE OA และใช้ AI ทำคอนเทนต์ TikTok ให้ใช้งานได้จริงในธุรกิจและงานประจำ
               </p>
               <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2 max-w-xl">
@@ -1085,7 +1085,7 @@ function LandingPage() {
                     key={item.label}
                     className="rounded-2xl border border-white/10 bg-white/[0.04] px-3 py-3 backdrop-blur"
                   >
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">
                       {item.label}
                     </p>
                     <p className="mt-1 text-sm font-extrabold text-foreground">{item.value}</p>
@@ -1121,7 +1121,7 @@ function LandingPage() {
                 ].map((t) => (
                   <div
                     key={t.label}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl glass-card text-xs text-muted-foreground"
+                    className="flex items-center gap-2 px-3 py-2 rounded-xl glass-card text-xs text-slate-200"
                   >
                     <t.icon className="w-3.5 h-3.5 text-gold" />
                     {t.label}
@@ -1140,7 +1140,7 @@ function LandingPage() {
                   </div>
                   <div>
                     <p className="text-sm font-extrabold">ขั้นตอนหลังลงทะเบียน</p>
-                    <p className="text-xs text-muted-foreground">ชัดเจน ตรวจสอบได้ ไม่ปล่อยให้รอแบบไม่รู้สถานะ</p>
+                    <p className="text-xs text-slate-300">ชัดเจน ตรวจสอบได้ ไม่ปล่อยให้รอแบบไม่รู้สถานะ</p>
                   </div>
                 </div>
                 <div className="grid gap-2">
@@ -1171,7 +1171,7 @@ function LandingPage() {
                 className={`w-3.5 h-3.5 rounded-full transition-all duration-300 ${
                   idx === bgIndex
                     ? "bg-gold w-8 shadow-glow"
-                    : "bg-muted-foreground/40 hover:bg-muted-foreground/80"
+                    : "bg-slate-500/50 hover:bg-slate-400"
                 }`}
                 aria-label={`เปลี่ยนสไลด์ภาพที่ ${idx + 1}`}
               />
@@ -1199,7 +1199,7 @@ function LandingPage() {
               </div>
               <div>
                 <p className="text-sm sm:text-base font-extrabold text-red-400">🚨 ด่วน! รับจำนวนจำกัด</p>
-                <p className="text-xs text-muted-foreground">
+                <p className="text-xs text-slate-300">
                   ลงทะเบียนภายใน <span className="text-gold font-bold">27 มิถุนายน 2569</span> รับ Gift Voucher เรียนฟรี <span className="text-gold font-bold">3,000 บาท</span> ที่จุดลงทะเบียนงาน Smart Business Expo
                 </p>
               </div>
@@ -1232,7 +1232,7 @@ function LandingPage() {
                       <h3 className="text-sm font-extrabold leading-snug text-foreground">
                         {item.title}
                       </h3>
-                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                      <p className="mt-1.5 text-xs leading-relaxed text-slate-300">
                         {item.desc}
                       </p>
                     </div>
@@ -1277,11 +1277,11 @@ function LandingPage() {
                   <div className="w-12 h-12 rounded-xl bg-gold-gradient grid place-items-center mx-auto mb-4 shadow-glow">
                     <d.icon className="w-5 h-5 text-primary-foreground" />
                   </div>
-                  <p className="text-[10px] text-muted-foreground uppercase tracking-widest mb-1">
+                  <p className="text-[10px] text-slate-300 uppercase tracking-widest mb-1">
                     {d.label}
                   </p>
                   <p className="font-extrabold text-lg leading-tight">{d.value}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{d.sub}</p>
+                  <p className="text-xs text-slate-300 mt-0.5">{d.sub}</p>
                 </div>
               </RevealSection>
             ))}
@@ -1313,7 +1313,7 @@ function LandingPage() {
                 enabled={ttsEnabled}
               />
             </h2>
-            <p className="text-center text-muted-foreground text-sm max-w-lg mx-auto mb-14">
+            <p className="text-center text-slate-300 text-sm max-w-lg mx-auto mb-14">
               Workshop ลงมือทำจริงในวันเดียว เสร็จแล้วนำไปใช้กับธุรกิจได้ทันที
             </p>
           </RevealSection>
@@ -1371,7 +1371,7 @@ function LandingPage() {
                         </span>
                       </div>
                       <h3 className="text-base font-extrabold mb-2">{c.title}</h3>
-                      <p className="text-sm text-muted-foreground leading-relaxed">{c.desc}</p>
+                      <p className="text-sm text-slate-300 leading-relaxed">{c.desc}</p>
                     </div>
                   </div>
                 </div>
@@ -1405,7 +1405,7 @@ function LandingPage() {
                 enabled={ttsEnabled}
               />
             </h2>
-            <p className="text-center text-muted-foreground text-sm max-w-xl mx-auto mb-14">
+            <p className="text-center text-slate-300 text-sm max-w-xl mx-auto mb-14">
               Agent คือ AI ที่ไม่แค่ "ตอบคำถาม" แต่ "ลงมือทำ" ได้จริง — ตั้งแต่รับคำสั่ง วิเคราะห์
               เลือกเครื่องมือ ไปจนถึงส่งผลลัพธ์กลับ ทั้งหมดนี้ทำงานอัตโนมัติ
             </p>
@@ -1472,7 +1472,7 @@ function LandingPage() {
                       </div>
                     </div>
                     <h3 className="text-base font-extrabold mb-2">{item.title}</h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                    <p className="text-xs text-slate-300 leading-relaxed">{item.desc}</p>
                   </div>
                   {/* Connector arrow (except last) */}
                   {i < 3 && (
@@ -1498,7 +1498,7 @@ function LandingPage() {
               <h3 className="text-lg sm:text-xl font-black mb-3">
                 ในเวิร์กช็อปนี้ คุณจะได้สร้าง Agent ของตัวเอง!
               </h3>
-              <p className="text-sm text-muted-foreground leading-relaxed max-w-lg mx-auto mb-5">
+              <p className="text-sm text-slate-300 leading-relaxed max-w-lg mx-auto mb-5">
                 เชื่อมต่อกับ LINE OA ของคุณ ให้ Agent ตอบลูกค้า 24 ชม. จองคิว ปิดการขาย
                 และส่งข้อมูลเข้า CRM ได้อัตโนมัติ — ทั้งหมดนี้สร้างเสร็จภายในวันเดียว
               </p>
@@ -1601,11 +1601,11 @@ function LandingPage() {
                         />
                       </div>
                       <div className="min-w-0">
-                        <p className="text-[9px] text-muted-foreground uppercase tracking-widest leading-none mb-1">
+                        <p className="text-[9px] text-slate-300 uppercase tracking-widest leading-none mb-1">
                           {s.role}
                         </p>
                         <h3 className="text-base font-black leading-tight truncate">{s.name}</h3>
-                        <p className="text-[10px] text-muted-foreground/80 leading-tight truncate mt-0.5">
+                        <p className="text-[10px] text-slate-300 leading-tight truncate mt-0.5">
                           {s.tag}
                         </p>
                       </div>
@@ -1628,7 +1628,7 @@ function LandingPage() {
                       </div>
                     </div>
 
-                    <p className="text-xs text-muted-foreground text-left leading-relaxed min-h-[54px] line-clamp-3">
+                    <p className="text-xs text-slate-300 text-left leading-relaxed min-h-[54px] line-clamp-3">
                       {s.portfolioDesc}
                     </p>
                   </div>
@@ -1679,13 +1679,13 @@ function LandingPage() {
                 <div className="relative inline-block mb-6">
                   <div className="absolute inset-0 bg-gold-gradient blur-3xl opacity-20 rounded-full" />
                   <div className="relative flex items-end justify-center gap-3">
-                    <span className="text-xl text-muted-foreground line-through self-start mt-2">
+                    <span className="text-xl text-slate-300 line-through self-start mt-2">
                       ฿5,999
                     </span>
                     <span className="shimmer-text text-7xl sm:text-8xl font-black leading-none">
                       2,999
                     </span>
-                    <span className="text-xl font-bold mb-1 text-muted-foreground">฿</span>
+                    <span className="text-xl font-bold mb-1 text-slate-300">฿</span>
                   </div>
                 </div>
 
@@ -1710,7 +1710,7 @@ function LandingPage() {
                   ))}
                 </div>
 
-                <p className="text-sm text-muted-foreground mb-8">
+                <p className="text-sm text-slate-300 mb-8">
                   สิทธิพิเศษเมื่อจองออนไลน์: ราคาพิเศษเพียง 2,999 บาท (ปกติ 5,999 บาท) ลงทะเบียนภายใน 27 มิ.ย. 69 รับ Gift Voucher เรียนฟรีมูลค่า 3,000 บาท ณ จุดลงทะเบียนงาน Smart Business Expo
                 </p>
 
@@ -1746,7 +1746,7 @@ function LandingPage() {
             <h2 className="text-center text-3xl sm:text-4xl font-black mb-3">
               ลงทะเบียนเรียน Workshop อย่างเป็นระบบ
             </h2>
-            <p className="text-center text-muted-foreground text-sm mb-10">
+            <p className="text-center text-slate-300 text-sm mb-10">
               กรอกข้อมูลครั้งเดียว ระบบจะสร้างเลขอ้างอิงการจองและทีมงานจะใช้ข้อมูลเพื่อตรวจสอบสิทธิ์เท่านั้น
             </p>
           </RevealSection>
@@ -1761,7 +1761,7 @@ function LandingPage() {
                     </div>
                     <div>
                       <p className="text-sm font-extrabold">ระบบลงทะเบียนอย่างเป็นทางการ</p>
-                      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                      <p className="mt-1 text-xs leading-relaxed text-slate-300">
                         ข้อมูลถูกใช้เพื่อออกเลขจอง ติดต่อยืนยันสิทธิ์ ส่ง QR Code และจัดเตรียม Workshop ให้ตรงกับผู้เข้าอบรม
                       </p>
                     </div>
@@ -1770,7 +1770,7 @@ function LandingPage() {
                     {["ข้อมูล", "AI Agent", "ยืนยัน"].map((label, idx) => (
                       <div key={label} className="rounded-xl bg-white/[0.04] px-2 py-2">
                         <p className="text-[10px] font-black text-gold">{idx + 1}</p>
-                        <p className="text-[10px] font-bold text-muted-foreground">{label}</p>
+                        <p className="text-[10px] font-bold text-slate-300">{label}</p>
                       </div>
                     ))}
                   </div>
@@ -1782,10 +1782,10 @@ function LandingPage() {
                 {([1, 2, 3] as const).map((s) => (
                   <div key={s} className="flex items-center gap-1">
                     <div className={`w-8 h-8 rounded-full grid place-items-center text-xs font-bold border-2 transition-all duration-300
-                      ${step === s ? "border-gold bg-gold/20 text-gold scale-110" : step > s ? "border-green-400 bg-green-400/20 text-green-400" : "border-border/60 bg-muted/10 text-muted-foreground"}`}>
+                      ${step === s ? "border-gold bg-gold/20 text-gold scale-110" : step > s ? "border-green-400 bg-green-400/20 text-green-400" : "border-border/60 bg-muted/10 text-slate-400"}`}>
                       {step > s ? <CheckCircle2 className="w-4 h-4" /> : s}
                     </div>
-                    <span className={`text-[11px] font-semibold hidden sm:block mr-1 ${step === s ? "text-gold" : step > s ? "text-green-400" : "text-muted-foreground"}`}>
+                    <span className={`text-[11px] font-semibold hidden sm:block mr-1 ${step === s ? "text-gold" : step > s ? "text-green-400" : "text-slate-300"}`}>
                       {s === 1 ? "ข้อมูล" : s === 2 ? "AI Agent" : "ยืนยัน"}
                     </span>
                     {s < 3 && <div className={`w-8 h-0.5 mx-1 ${step > s ? "bg-green-400" : "bg-border/50"} transition-all duration-300`} />}
@@ -1800,7 +1800,7 @@ function LandingPage() {
                     <div className="w-8 h-8 rounded-lg bg-gold/10 grid place-items-center text-gold"><User className="w-4 h-4" /></div>
                     <div>
                       <h3 className="font-extrabold text-lg leading-tight">ข้อมูลผู้ดูแล (บอท)</h3>
-                      <p className="text-xs text-muted-foreground">ข้อมูลสำหรับติดต่อกลับและเชื่อมต่อ LINE OA</p>
+                      <p className="text-xs text-slate-300">ข้อมูลสำหรับติดต่อกลับและเชื่อมต่อ LINE OA</p>
                     </div>
                   </div>
 
@@ -1849,7 +1849,7 @@ function LandingPage() {
                     <div className="w-8 h-8 rounded-lg bg-primary/10 grid place-items-center text-primary"><Brain className="w-4 h-4" /></div>
                     <div>
                       <h3 className="font-extrabold text-lg leading-tight">เลือกความสามารถ AI Agent</h3>
-                      <p className="text-xs text-muted-foreground">เลือกฟังก์ชันที่ต้องการให้บอทของคุณทำได้</p>
+                      <p className="text-xs text-slate-300">เลือกฟังก์ชันที่ต้องการให้บอทของคุณทำได้</p>
                     </div>
                   </div>
 
@@ -1867,7 +1867,7 @@ function LandingPage() {
                         <button key={opt.value} type="button"
                           onClick={() => setInterestTopics(prev => sel ? prev.filter(v => v !== opt.value) : [...prev, opt.value])}
                           className={`flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all duration-200 ${sel ? "border-primary bg-primary/10 text-gold" : "border-border/60 bg-input/40 hover:border-border text-foreground"}`}>
-                          <div className={`shrink-0 w-7 h-7 rounded-lg grid place-items-center ${sel ? "bg-gold-gradient text-primary-foreground" : "bg-muted/40 text-muted-foreground"}`}>
+                          <div className={`shrink-0 w-7 h-7 rounded-lg grid place-items-center ${sel ? "bg-gold-gradient text-primary-foreground" : "bg-muted/40 text-slate-300"}`}>
                             <Icon className="w-3.5 h-3.5" />
                           </div>
                           <span className="text-sm font-semibold leading-tight">{opt.value}</span>
@@ -1880,7 +1880,7 @@ function LandingPage() {
                   <div className="space-y-2 pt-2">
                     <div className="flex items-center gap-2">
                       <Cpu className="w-4 h-4 text-gold" />
-                      <label className="text-sm font-bold text-foreground/80">System Prompt คำสั่งควบคุมบอทของคุณ <span className="text-muted-foreground font-normal">(ไม่บังคับ)</span></label>
+                      <label className="text-sm font-bold text-foreground/80">System Prompt คำสั่งควบคุมบอทของคุณ <span className="text-slate-300 font-normal">(ไม่บังคับ)</span></label>
                     </div>
                     <textarea
                       rows={5}
@@ -1889,7 +1889,7 @@ function LandingPage() {
                       onChange={(e) => setSystemPrompt(e.target.value)}
                       className="w-full px-4 py-3.5 rounded-xl bg-input/50 border border-border/60 focus:border-primary focus:ring-2 focus:ring-primary/30 text-foreground outline-none resize-none text-sm transition-all font-mono"
                     />
-                    <p className="text-xs text-muted-foreground">ทีมงานจะใช้ prompt นี้ตั้งค่าบอท AI Agent ของคุณระหว่าง Workshop</p>
+                    <p className="text-xs text-slate-300">ทีมงานจะใช้ prompt นี้ตั้งค่าบอท AI Agent ของคุณระหว่าง Workshop</p>
                   </div>
                 </div>
               )}
@@ -1901,22 +1901,22 @@ function LandingPage() {
                     <div className="w-8 h-8 rounded-lg bg-gold/10 grid place-items-center text-gold"><Cog className="w-4 h-4" /></div>
                     <div>
                       <h3 className="font-extrabold text-lg leading-tight">ตรวจสอบข้อมูล & มัดจำ</h3>
-                      <p className="text-xs text-muted-foreground">ยืนยันรายละเอียดและชำระเงินมัดจำเพื่อจองสิทธิ์</p>
+                      <p className="text-xs text-slate-300">ยืนยันรายละเอียดและชำระเงินมัดจำเพื่อจองสิทธิ์</p>
                     </div>
                   </div>
 
                   {/* Summary card */}
-                  <div className="rounded-2xl p-4 space-y-3 text-sm" style={{ background: "oklch(0.24 0.04 262 / 0.8)", border: "1px solid oklch(0.38 0.04 262 / 0.5)" }}>
-                    <p className="text-[10px] font-bold uppercase tracking-widest" style={{ color: "oklch(0.72 0.02 260)" }}>สรุปข้อมูลการลงทะเบียน</p>
-                    <div className="grid sm:grid-cols-2 gap-y-1.5 gap-x-4" style={{ color: "oklch(0.82 0.02 260)" }}>
-                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>ชื่อ: </span><span className="font-semibold">{fullName}</span></span>
-                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>เบอร์: </span><span className="font-semibold">{phone}</span></span>
-                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>LINE: </span><span className="font-semibold">{lineId}</span></span>
-                      <span><span style={{ color: "oklch(0.66 0.02 260)" }}>จังหวัด: </span><span className="font-semibold">{province}{district ? ` / ${district}` : ""}</span></span>
+                  <div className="rounded-2xl p-4 space-y-3 text-sm" style={{ background: "oklch(0.24 0.04 262 / 0.8)", border: "1px solid oklch(0.38 0.04 262 / 0.5)", color: "oklch(0.92 0.01 260)" }}>
+                    <p className="text-[10px] font-extrabold uppercase tracking-widest" style={{ color: "oklch(0.96 0.01 260)" }}>สรุปข้อมูลการลงทะเบียน</p>
+                    <div className="grid sm:grid-cols-2 gap-y-1.5 gap-x-4">
+                      <span><span style={{ color: "oklch(0.86 0.01 260)" }}>ชื่อ: </span><span className="font-bold text-white">{fullName}</span></span>
+                      <span><span style={{ color: "oklch(0.86 0.01 260)" }}>เบอร์: </span><span className="font-bold text-white">{phone}</span></span>
+                      <span><span style={{ color: "oklch(0.86 0.01 260)" }}>LINE: </span><span className="font-bold text-white">{lineId}</span></span>
+                      <span><span style={{ color: "oklch(0.86 0.01 260)" }}>จังหวัด: </span><span className="font-bold text-white">{province}{district ? ` / ${district}` : ""}</span></span>
                     </div>
                     {interestTopics.length > 0 && (
                       <div className="pt-2 border-t" style={{ borderColor: "oklch(0.38 0.04 262)" }}>
-                        <p className="text-[10px] mb-1.5" style={{ color: "oklch(0.66 0.02 260)" }}>ความสามารถ AI ที่เลือก:</p>
+                        <p className="text-[10px] mb-1.5" style={{ color: "oklch(0.86 0.01 260)" }}>ความสามารถ AI ที่เลือก:</p>
                         <div className="flex flex-wrap gap-1.5">
                           {interestTopics.map(t => (
                             <span key={t} className="text-[10px] font-semibold px-2 py-1 rounded-full bg-gold/15 text-gold border border-gold/20">{t}</span>
@@ -1931,15 +1931,15 @@ function LandingPage() {
                     <div className="p-5 text-center" style={{ background: "oklch(0.26 0.08 50 / 0.5)" }}>
                       <p className="text-[10px] font-bold uppercase tracking-widest text-gold mb-1">ใบบิลมัดจำจองสิทธิ์ – ราคาพิเศษ</p>
                       <p className="text-4xl font-black text-gold">2,999 <span className="text-lg font-bold">บาท</span></p>
-                      <p className="text-xs line-through mt-0.5 text-muted-foreground">ราคาปกติ 5,999 บาท</p>
+                      <p className="text-xs line-through mt-0.5 text-slate-400">ราคาปกติ 5,999 บาท</p>
                     </div>
                     <div className="p-4 space-y-3" style={{ background: "oklch(0.22 0.05 262 / 0.9)" }}>
                       <div className="flex items-center gap-3 p-3 rounded-xl bg-white/5">
                         <div className="w-9 h-9 rounded-xl grid place-items-center bg-green-500/15 shrink-0 font-black text-green-400">K</div>
                         <div>
-                          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">ธนาคารกสิกรไทย</p>
+                          <p className="text-[10px] font-bold uppercase tracking-widest text-slate-300">ธนาคารกสิกรไทย</p>
                           <p className="font-extrabold text-gold text-lg leading-tight">405-3-05346-3</p>
-                          <p className="text-xs text-muted-foreground">อัจฉรีญา โถนารัตน์</p>
+                          <p className="text-xs text-slate-200">อัจฉรีญา โถนารัตน์</p>
                         </div>
                       </div>
                       <div className="p-2.5 rounded-xl text-xs font-semibold leading-relaxed"
@@ -1958,20 +1958,20 @@ function LandingPage() {
                     
                     <div className="grid sm:grid-cols-2 gap-4">
                       <div>
-                        <label className="block text-xs font-bold mb-1.5 text-muted-foreground">ช่องทางการชำระเงิน</label>
+                        <label className="block text-xs font-bold mb-1.5 text-slate-300">ช่องทางการชำระเงิน</label>
                         <input
                           type="text"
                           value={paymentMethod}
-                          className="w-full px-4 py-2.5 rounded-xl bg-input/40 border border-border/40 text-muted-foreground text-sm cursor-not-allowed outline-none"
+                          className="w-full px-4 py-2.5 rounded-xl bg-input/40 border border-border/40 text-slate-200 text-sm cursor-not-allowed outline-none"
                           disabled
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold mb-1.5 text-muted-foreground">จำนวนเงินโอน (บาท)</label>
+                        <label className="block text-xs font-bold mb-1.5 text-slate-300">จำนวนเงินโอน (บาท)</label>
                         <input
                           type="text"
                           value={paymentAmount}
-                          className="w-full px-4 py-2.5 rounded-xl bg-input/40 border border-border/40 text-muted-foreground text-sm cursor-not-allowed outline-none"
+                          className="w-full px-4 py-2.5 rounded-xl bg-input/40 border border-border/40 text-slate-200 text-sm cursor-not-allowed outline-none"
                           disabled
                         />
                       </div>
@@ -2224,12 +2224,12 @@ function LandingPage() {
               href="https://www.facebook.com/share/1CYyEYkj81/?mibextid=wwXIfr"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-xs text-muted-foreground hover:text-gold transition-colors inline-flex items-center gap-1.5 bg-white/[0.03] hover:bg-white/[0.08] px-4 py-2 rounded-full border border-white/5"
+              className="text-xs text-slate-300 hover:text-gold transition-colors inline-flex items-center gap-1.5 bg-white/[0.03] hover:bg-white/[0.08] px-4 py-2 rounded-full border border-white/5"
             >
               🌐 ติดตามเพจ Facebook สะออนทัวร์
             </a>
           </div>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-xs text-slate-300">
             © 2026 สะออนทัวร์ – Workshop Agent ไทบ้าน ขอนแก่น
           </p>
           <div className="flex items-center justify-center gap-3 mt-2">
@@ -2240,16 +2240,16 @@ function LandingPage() {
               <Lock className="w-2.5 h-2.5" />
               นโยบายความเป็นส่วนตัว (PDPA)
             </button>
-            <span className="text-muted-foreground/30">|</span>
+            <span className="text-slate-600">|</span>
             <a
               href="#how-agent"
-              className="text-[10px] text-muted-foreground/60 hover:text-gold transition-colors inline-flex items-center gap-1"
+              className="text-[10px] text-slate-400 hover:text-gold transition-colors inline-flex items-center gap-1"
             >
               <Brain className="w-2.5 h-2.5" />
               Agent ทำงานอย่างไร?
             </a>
           </div>
-          <p className="text-[10px] text-muted-foreground/60 mt-1">
+          <p className="text-[10px] text-slate-400 mt-1">
             สงวนสิทธิ์ | ข้อมูลการติดต่อตามแบบฟอร์ม
           </p>
         </div>
