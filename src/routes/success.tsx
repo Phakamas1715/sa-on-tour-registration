@@ -10,6 +10,9 @@ export const Route = createFileRoute("/success")({
     z.object({
       code: z.string().optional(),
       slip: z.boolean().optional().or(z.string().transform((v) => v === "true")),
+      g: z.string().optional(),
+      source: z.string().optional(),
+      ref: z.string().optional(),
     }).parse(s),
   head: () => ({
     meta: [{ title: "จองสิทธิ์สำเร็จ – สะออนทัวร์ Workshop" }],
@@ -20,7 +23,7 @@ export const Route = createFileRoute("/success")({
 const LINE_OA_URL = "https://line.me/R/ti/p/@saontour";
 
 function SuccessPage() {
-  const { code, slip } = Route.useSearch();
+  const { code, slip, g, source, ref } = Route.useSearch();
   const [copied, setCopied] = useState(false);
 
   function copyCode() {
@@ -161,9 +164,40 @@ function SuccessPage() {
           </div>
 
           {/* ── Gift voucher notice ── */}
-          <div className="p-4 rounded-2xl bg-gold/10 border border-gold/30 text-gold text-sm font-semibold text-center">
-            🎁 รับ Gift Voucher เรียนฟรี 3,000 บาท ที่จุดลงทะเบียนงาน Smart Business Expo!
-          </div>
+          {(() => {
+            const normalizedG = (g || "").toLowerCase();
+            const normalizedRef = (ref || "").toLowerCase();
+            const normalizedSrc = (source || "").toLowerCase();
+
+            const resolvedSpeaker =
+              normalizedG === "paramate" || normalizedRef === "paramate" || (normalizedSrc === "speaker" && normalizedRef === "paramate")
+                ? "ปรเมศวร์ มินศิริ"
+                : normalizedG === "dome" || normalizedRef === "dome" || (normalizedSrc === "speaker" && normalizedRef === "dome")
+                  ? "โดม เจริญยศ"
+                  : normalizedG === "njv"
+                    ? "หนุ่มนักออม"
+                    : null;
+
+            if (resolvedSpeaker) {
+              return (
+                <div className="rounded-2xl p-5 border-2 border-dashed border-gold/40 bg-gold/5 text-center relative overflow-hidden">
+                  <div className="absolute top-0 right-0 w-24 h-24 bg-gold/5 blur-xl rounded-full" />
+                  <p className="text-xs font-bold uppercase tracking-widest text-gold mb-1">🎁 Special Gift Voucher</p>
+                  <p className="text-3xl font-black text-gold">3,000 <span className="text-sm font-bold">THB</span></p>
+                  <div className="my-2 h-[1px] bg-gold/20" />
+                  <p className="text-sm font-extrabold text-white">Special Voucher by {resolvedSpeaker}</p>
+                  <p className="text-[10px] text-slate-300 mt-1">สะออนทัวร์ Workshop: Agent ไทบ้าน ขอนแก่น</p>
+                  <p className="text-[9px] text-slate-400">Upskill LINE OA & TikTok</p>
+                </div>
+              );
+            }
+
+            return (
+              <div className="p-4 rounded-2xl bg-gold/10 border border-gold/30 text-gold text-sm font-semibold text-center">
+                🎁 รับ Gift Voucher เรียนฟรี 3,000 บาท ที่จุดลงทะเบียนงาน Smart Business Expo!
+              </div>
+            );
+          })()}
 
           {/* ── Action buttons ── */}
           <div className="space-y-3">

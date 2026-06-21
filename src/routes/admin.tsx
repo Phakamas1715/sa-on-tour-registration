@@ -31,13 +31,18 @@ type Reg = {
   source_channel?: string | null;
   status: string;
   created_at: string;
+  referrer_type?: string | null;
+  referrer_name?: string | null;
+  campaign_code?: string | null;
+  voucher_source?: string | null;
+  payment_amount?: string | null;
 };
 
 const SOURCE_BADGE: Record<string, { label: string; color: string }> = {
   GOOGLE_FORM_EXPO:    { label: "Google Form", color: "bg-blue-500/15 text-blue-400 border-blue-500/30" },
   LINE_LIFF:           { label: "LINE LIFF",   color: "bg-green-500/15 text-green-400 border-green-500/30" },
   LINE_LIFF_NUMNAKOM:  { label: "LIFF หนุ่มนักออม", color: "bg-emerald-500/15 text-emerald-400 border-emerald-500/30" },
-  LINE_LIFF_PREMIUM:   { label: "LIFF Premium",  color: "bg-purple-500/15 text-purple-400 border-purple-500/30" },
+  SPEAKER_REFERRAL:    { label: "Speaker Referral / ช่องทางวิทยากร", color: "bg-purple-500/15 text-purple-400 border-purple-500/30" },
 };
 
 const STATUSES = [
@@ -264,7 +269,116 @@ function AdminDashboard() {
       }
       return true;
     });
-  }, [rows, q, statusFilter]);
+  }, [rows, q, statusFilter, channelFilter]);
+
+  const stats = useMemo(() => {
+    let googleFormTotal = 0;
+    let googleFormPaid = 0;
+    let googleFormRevenue = 0;
+
+    let numnakomTotal = 0;
+    let numnakomPaid = 0;
+    let numnakomRevenue = 0;
+
+    let paramateTotal = 0;
+    let paramatePaid = 0;
+    let paramateRevenue = 0;
+
+    let domeTotal = 0;
+    let domePaid = 0;
+    let domeRevenue = 0;
+
+    let otherSpeakersTotal = 0;
+    let otherSpeakersPaid = 0;
+    let otherSpeakersRevenue = 0;
+
+    let genericLiffTotal = 0;
+    let genericLiffPaid = 0;
+    let genericLiffRevenue = 0;
+
+    let checkedInCount = 0;
+    let totalPaidCount = 0;
+    let totalUnpaidCount = 0;
+
+    rows.forEach((r) => {
+      const channel = r.source_channel || "LINE_LIFF";
+      const status = r.status;
+      const isPaid = status === "paid" || status === "checked_in";
+      const isCheckedIn = status === "checked_in";
+
+      // Parse payment amount
+      let amt = 0;
+      if (isPaid) {
+        const cleaned = (r.payment_amount || "").replace(/[^0-9.]/g, "");
+        amt = parseFloat(cleaned) || 2999;
+      }
+
+      if (isCheckedIn) checkedInCount++;
+      if (isPaid) {
+        totalPaidCount++;
+      } else if (status !== "cancelled") {
+        totalUnpaidCount++;
+      }
+
+      const campaign = (r.campaign_code || "").toUpperCase();
+      const refName = r.referrer_name || "";
+
+      if (channel === "GOOGLE_FORM_EXPO") {
+        googleFormTotal++;
+        if (isPaid) {
+          googleFormPaid++;
+          googleFormRevenue += amt;
+        }
+      } else if (channel === "LINE_LIFF_NUMNAKOM") {
+        numnakomTotal++;
+        if (isPaid) {
+          numnakomPaid++;
+          numnakomRevenue += amt;
+        }
+      } else if (channel === "SPEAKER_REFERRAL" || campaign.startsWith("SPEAKER-") || r.source_channel === "LINE_LIFF_PREMIUM") {
+        // Speaker Referral
+        if (refName === "ปรเมศวร์ มินศิริ" || campaign.includes("PARAMATE")) {
+          paramateTotal++;
+          if (isPaid) {
+            paramatePaid++;
+            paramateRevenue += amt;
+          }
+        } else if (refName === "โดม เจริญยศ" || campaign.includes("DOME")) {
+          domeTotal++;
+          if (isPaid) {
+            domePaid++;
+            domeRevenue += amt;
+          }
+        } else {
+          otherSpeakersTotal++;
+          if (isPaid) {
+            otherSpeakersPaid++;
+            otherSpeakersRevenue += amt;
+          }
+        }
+      } else {
+        // Generic LINE_LIFF
+        genericLiffTotal++;
+        if (isPaid) {
+          genericLiffPaid++;
+          genericLiffRevenue += amt;
+        }
+      }
+    });
+
+    return {
+      googleForm: { total: googleFormTotal, paid: googleFormPaid, revenue: googleFormRevenue },
+      numnakom: { total: numnakomTotal, paid: numnakomPaid, revenue: numnakomRevenue },
+      paramate: { total: paramateTotal, paid: paramatePaid, revenue: paramateRevenue },
+      dome: { total: domeTotal, paid: domePaid, revenue: domeRevenue },
+      otherSpeakers: { total: otherSpeakersTotal, paid: otherSpeakersPaid, revenue: otherSpeakersRevenue },
+      genericLiff: { total: genericLiffTotal, paid: genericLiffPaid, revenue: genericLiffRevenue },
+      checkedInCount,
+      totalPaidCount,
+      totalUnpaidCount,
+      totalRevenue: googleFormRevenue + numnakomRevenue + paramateRevenue + domeRevenue + otherSpeakersRevenue + genericLiffRevenue,
+    };
+  }, [rows]);
 
   async function changeStatus(id: string, status: string) {
     try {
@@ -289,7 +403,12 @@ function AdminDashboard() {
       "Occupation",
       "Interest",
       "Status",
+      "Payment Amount",
       "Created",
+      "Referrer Type",
+      "Referrer Name",
+      "Campaign Code",
+      "Voucher Source",
     ];
     const lines = [headers.join(",")];
     for (const r of filtered) {
@@ -306,9 +425,14 @@ function AdminDashboard() {
           r.occupation ?? "",
           r.interest_topic ?? "",
           r.status,
+          r.payment_amount ?? "",
           r.created_at,
+          r.referrer_type ?? "",
+          r.referrer_name ?? "",
+          r.campaign_code ?? "",
+          r.voucher_source ?? "",
         ]
-          .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+          .map((v) => `"${String(v ?? "").replace(/"/g, '""')}"`)
           .join(","),
       );
     }
@@ -348,6 +472,80 @@ function AdminDashboard() {
       </header>
 
       <main className="mx-auto max-w-7xl px-4 sm:px-6 py-8">
+        {/* Statistics Cards */}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 mb-8">
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-card-soft">
+            <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">เช็คอินหน้างาน</p>
+            <p className="text-3xl font-black text-gold">{stats.checkedInCount} <span className="text-xs font-semibold text-slate-300">คน</span></p>
+            <p className="text-[10px] text-slate-400 mt-1">สแกน QR รับคูปองแล้ว</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-card-soft">
+            <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">ยอดผู้ลงทะเบียน (ชำระแล้ว / รออนุมัติ)</p>
+            <p className="text-3xl font-black text-green-400">
+              {stats.totalPaidCount} <span className="text-xs font-semibold text-slate-300">/ {stats.totalUnpaidCount} คน</span>
+            </p>
+            <p className="text-[10px] text-slate-400 mt-1">ทั้งหมด {rows.length} คน (ไม่รวมที่ยกเลิก)</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-card-soft">
+            <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">รายได้มัดจำรวม</p>
+            <p className="text-3xl font-black text-green-400">{stats.totalRevenue.toLocaleString()} <span className="text-xs font-semibold text-slate-300">บาท</span></p>
+            <p className="text-[10px] text-slate-400 mt-1">คำนวณจากคนที่จ่ายเงินแล้ว</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-card p-5 shadow-card-soft">
+            <p className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-1">สัดส่วนผู้เข้าร่วม</p>
+            <div className="text-xs text-slate-300 mt-1.5 space-y-1">
+              <div className="flex justify-between"><span>Google Form:</span> <strong>{stats.googleForm.total} คน</strong></div>
+              <div className="flex justify-between"><span>หนุ่มนักออม:</span> <strong>{stats.numnakom.total} คน</strong></div>
+              <div className="flex justify-between"><span>วิทยากร (Speaker):</span> <strong>{stats.paramate.total + stats.dome.total + stats.otherSpeakers.total} คน</strong></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed channel breakdown table */}
+        <div className="rounded-2xl border border-border bg-card p-5 mb-8 shadow-card-soft">
+          <h3 className="font-extrabold text-sm mb-4 text-slate-200">📊 สรุปยอดตามช่องทางวิทยากรและแคมเปญ (Referral Stats)</h3>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-4">
+            <div className="p-3.5 rounded-xl bg-white/5 border border-border/40">
+              <p className="text-xs font-bold text-slate-300">Google Form (กลางงาน)</p>
+              <p className="text-lg font-extrabold text-white mt-1">{stats.googleForm.total} คน</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">จ่ายแล้ว: {stats.googleForm.paid} คน ({stats.googleForm.revenue.toLocaleString()} บ.)</p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-white/5 border border-border/40">
+              <p className="text-xs font-bold text-slate-300">หนุ่มนักออม</p>
+              <p className="text-lg font-extrabold text-white mt-1">{stats.numnakom.total} คน</p>
+              <p className="text-[10px] text-slate-400 mt-0.5">จ่ายแล้ว: {stats.numnakom.paid} คน ({stats.numnakom.revenue.toLocaleString()} บ.)</p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-white/5 border border-border/40 border-purple-500/20 bg-purple-500/5">
+              <p className="text-xs font-bold text-purple-300">Speaker: ปรเมศวร์</p>
+              <p className="text-lg font-extrabold text-white mt-1">{stats.paramate.total} คน</p>
+              <p className="text-[10px] text-purple-400 mt-0.5">จ่ายแล้ว: {stats.paramate.paid} คน ({stats.paramate.revenue.toLocaleString()} บ.)</p>
+            </div>
+            <div className="p-3.5 rounded-xl bg-white/5 border border-border/40 border-purple-500/20 bg-purple-500/5">
+              <p className="text-xs font-bold text-purple-300">Speaker: โดม</p>
+              <p className="text-lg font-extrabold text-white mt-1">{stats.dome.total} คน</p>
+              <p className="text-[10px] text-purple-400 mt-0.5">จ่ายแล้ว: {stats.dome.paid} คน ({stats.dome.revenue.toLocaleString()} บ.)</p>
+            </div>
+          </div>
+          {(stats.otherSpeakers.total > 0 || stats.genericLiff.total > 0) && (
+            <div className="grid gap-4 sm:grid-cols-2 mt-4 pt-4 border-t border-border/40">
+              {stats.otherSpeakers.total > 0 && (
+                <div className="p-3.5 rounded-xl bg-white/5 border border-border/40">
+                  <p className="text-xs font-bold text-slate-300">วิทยากรอื่นๆ</p>
+                  <p className="text-lg font-extrabold text-white mt-1">{stats.otherSpeakers.total} คน</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">จ่ายแล้ว: {stats.otherSpeakers.paid} คน ({stats.otherSpeakers.revenue.toLocaleString()} บ.)</p>
+                </div>
+              )}
+              {stats.genericLiff.total > 0 && (
+                <div className="p-3.5 rounded-xl bg-white/5 border border-border/40">
+                  <p className="text-xs font-bold text-slate-300">LINE LIFF ทั่วไป</p>
+                  <p className="text-lg font-extrabold text-white mt-1">{stats.genericLiff.total} คน</p>
+                  <p className="text-[10px] text-slate-400 mt-0.5">จ่ายแล้ว: {stats.genericLiff.paid} คน ({stats.genericLiff.revenue.toLocaleString()} บ.)</p>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-3 mb-6">
           <div className="relative flex-1 min-w-[240px]">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -426,9 +624,10 @@ function AdminDashboard() {
                         {(() => {
                           const ch = r.source_channel ?? "LINE_LIFF";
                           const b = SOURCE_BADGE[ch] ?? { label: ch, color: "bg-muted/20 text-muted-foreground border-border" };
+                          const label = ch === "SPEAKER_REFERRAL" && r.referrer_name ? `Speaker: ${r.referrer_name}` : b.label;
                           return (
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${b.color}`}>
-                              {b.label}
+                              {label}
                             </span>
                           );
                         })()}

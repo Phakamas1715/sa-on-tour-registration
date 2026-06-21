@@ -28,6 +28,10 @@ const registrationSchema = z.object({
   source_channel: z.string().trim().max(40).optional().or(z.literal("")),
   line_display_name: z.string().trim().max(200).optional().or(z.literal("")),
   consent: z.literal(true),
+  referrer_type: z.string().trim().max(100).optional().or(z.literal("")),
+  referrer_name: z.string().trim().max(200).optional().or(z.literal("")),
+  campaign_code: z.string().trim().max(100).optional().or(z.literal("")),
+  voucher_source: z.string().trim().max(200).optional().or(z.literal("")),
 });
 
 export const createRegistration = createServerFn({ method: "POST" })
@@ -65,6 +69,10 @@ export const createRegistration = createServerFn({ method: "POST" })
       system_prompt: data.system_prompt || null,
       source_channel: data.source_channel || "LINE_LIFF",
       line_display_name: data.line_display_name || null,
+      referrer_type: data.referrer_type || null,
+      referrer_name: data.referrer_name || null,
+      campaign_code: data.campaign_code || null,
+      voucher_source: data.voucher_source || null,
     };
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { data: row, error } = await supabaseAdmin

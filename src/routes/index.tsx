@@ -77,6 +77,8 @@ export const Route = createFileRoute("/")({
   validateSearch: (s: Record<string, unknown>) =>
     z.object({
       g: z.string().optional(),
+      source: z.string().optional(),
+      ref: z.string().optional(),
     }).parse(s),
   head: () => ({
     meta: [
@@ -327,7 +329,7 @@ function ChatDemo() {
 // ─── Landing Page ─────────────────────────────────────────────────
 function LandingPage() {
   const navigate = useNavigate();
-  const { g } = Route.useSearch();
+  const { g, source, ref } = Route.useSearch();
   const submit = useServerFn(createRegistration);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -789,12 +791,57 @@ function LandingPage() {
       notes: notes.trim(),
       line_user_id: liffUserId,
       system_prompt: systemPrompt.trim(),
-      source_channel:
-        g === "njv"
-          ? "LINE_LIFF_NUMNAKOM"
-          : g === "premium"
-            ? "LINE_LIFF_PREMIUM"
-            : "LINE_LIFF",
+      ...(() => {
+        const normalizedG = (g || "").toLowerCase();
+        const normalizedRef = (ref || "").toLowerCase();
+        const normalizedSrc = (source || "").toLowerCase();
+
+        let source_channel = "LINE_LIFF";
+        let referrer_type = "";
+        let referrer_name = "";
+        let campaign_code = "";
+        let voucher_source = "";
+
+        if (normalizedG === "njv") {
+          source_channel = "LINE_LIFF_NUMNAKOM";
+          referrer_type = "influencer";
+          referrer_name = "หนุ่มนักออม";
+          campaign_code = "INFLUENCER-NUMNAKOM-GIFT3000";
+          voucher_source = "หนุ่มนักออม";
+        } else if (normalizedG === "paramate" || normalizedRef === "paramate" || (normalizedSrc === "speaker" && normalizedRef === "paramate")) {
+          source_channel = "SPEAKER_REFERRAL";
+          referrer_type = "speaker";
+          referrer_name = "ปรเมศวร์ มินศิริ";
+          campaign_code = "SPEAKER-PARAMATE-GIFT3000";
+          voucher_source = "Speaker: ปรเมศวร์ มินศิริ";
+        } else if (normalizedG === "dome" || normalizedRef === "dome" || (normalizedSrc === "speaker" && normalizedRef === "dome")) {
+          source_channel = "SPEAKER_REFERRAL";
+          referrer_type = "speaker";
+          referrer_name = "โดม เจริญยศ";
+          campaign_code = "SPEAKER-DOME-GIFT3000";
+          voucher_source = "Speaker: โดม เจริญยศ";
+        } else if (normalizedG === "premium") {
+          source_channel = "SPEAKER_REFERRAL";
+          referrer_type = "speaker";
+          referrer_name = "วิทยากร";
+          campaign_code = "SPEAKER-PREMIUM-GIFT3000";
+          voucher_source = "Speaker Referral";
+        } else if (normalizedSrc === "speaker" && ref) {
+          source_channel = "SPEAKER_REFERRAL";
+          referrer_type = "speaker";
+          referrer_name = ref;
+          campaign_code = `SPEAKER-${ref.toUpperCase()}-GIFT3000`;
+          voucher_source = `Speaker: ${ref}`;
+        }
+
+        return {
+          source_channel,
+          referrer_type,
+          referrer_name,
+          campaign_code,
+          voucher_source,
+        };
+      })(),
       line_display_name: liffUserId ? fullName.trim() : "",
       consent: true as const,
     };
@@ -803,7 +850,7 @@ function LandingPage() {
         submit({ data }),
         new Promise<void>((resolve) => setTimeout(resolve, TERMINAL_LINES.length * 350 + 600)),
       ]);
-      navigate({ to: "/success", search: { code: res.registration_code, slip: !!paymentProofUrl } });
+      navigate({ to: "/success", search: { code: res.registration_code, slip: !!paymentProofUrl, g, source, ref } });
     } catch (err) {
       console.error(err);
       setShowTerminal(false);
